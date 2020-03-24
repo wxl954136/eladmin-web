@@ -9,18 +9,14 @@
     <!--表格渲染-->
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
       <el-table-column type="selection" width="55" />
-      <el-table-column v-if="columns.visible('name')" prop="name" label="名称" />
-      <el-table-column v-if="columns.visible('dept')" prop="dept" label="所属部门">
-        <template slot-scope="scope">
-          <div>{{ scope.row.deptSuperiorName ? scope.row.deptSuperiorName + ' / ' : '' }}{{ scope.row.dept.name }}</div>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序">
+      <el-table-column v-if="columns.visible('name')" prop="name" label="银行名称"  width="200"/>
+
+      <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序" width="55" >
         <template slot-scope="scope">
           {{ scope.row.sort }}
         </template>
       </el-table-column>
-      <el-table-column v-if="columns.visible('status')" prop="status" label="状态" align="center">
+      <el-table-column v-if="columns.visible('status')" prop="status" label="状态" align="center" width="80" >
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.enabled"
@@ -37,7 +33,7 @@
       </el-table-column>
       <!--   编辑与删除   -->
       <el-table-column
-        v-permission="['admin','job:edit','job:del']"
+        v-permission="['admin','bank:edit','bank:del']"
         label="操作"
         width="130px"
         align="center"
@@ -59,7 +55,7 @@
 </template>
 
 <script>
-import crudJob from '@/api/system/job'
+import crudBank from '@/api/system/bank'
 import eHeader from './module/header'
 import eForm from './module/form'
 import CRUD, { presenter } from '@crud/crud'
@@ -69,14 +65,14 @@ import udOperation from '@crud/UD.operation'
 
 // crud交由presenter持有
 const crud = CRUD({
-  title: '岗位',
-  url: 'api/job',
+  title: '银行',
+  url: 'api/bank',
   sort: ['sort,asc', 'id,desc'],
-  crudMethod: { ...crudJob }
+  crudMethod: { ...crudBank }
 })
 
 export default {
-  name: 'Job',
+  name: 'Bank',
   components: { eHeader, eForm, crudOperation, pagination, udOperation },
   mixins: [presenter(crud)],
   // 数据字典
@@ -84,16 +80,16 @@ export default {
   data() {
     return {
       permission: {
-        add: ['admin', 'job:add'],
-        edit: ['admin', 'job:edit'],
-        del: ['admin', 'job:del']
+        add: ['admin', 'bank:add'],
+        edit: ['admin', 'bank:edit'],
+        del: ['admin', 'bank:del']
       }
     }
   },
   methods: {
     // 改变状态
     changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.job_status[val] + '" ' + data.name + '岗位, 是否继续？', '提示', {
+      this.$confirm('此操作将 "' + this.dict.label.job_status[val] + '" ' + data.name + '银行, 是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

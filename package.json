@@ -101,8 +101,8 @@
   },
   "browserslist": [
     "> 1%",
-    "last 2 versions"
-  ],
-  "homepage": "https://github.com/elunez/eladmin-web#readme",
-  "main": ".eslintrc.js"
+"last 2 versions"
+],
+"homepage": "https://github.com/elunez/eladmin-web#readme",
+"main": ".eslintrc.js"
 }
