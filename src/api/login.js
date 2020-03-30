@@ -1,10 +1,11 @@
 import request from '@/utils/request'
 
-export function login(username, password, code, uuid) {
+export function login(topcompanycode,username, password, code, uuid) {
   return request({
     url: 'auth/login',
     method: 'post',
     data: {
+      topcompanycode,
       username,
       password,
       code,
