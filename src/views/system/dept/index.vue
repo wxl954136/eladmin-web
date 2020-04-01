@@ -26,15 +26,30 @@
     <!--表单组件-->
     <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
       <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
+        <el-form-item label="关联uuidKey" prop="keywords" hidden>
+          <el-input v-model="form.keywords" style="width: 370px;" />
+        </el-form-item>
+        <el-form-item label="企业代码" prop="topCompanyCode" hidden>
+        <el-input v-model="form.topCompanyCode" style="width: 370px;" />
+        </el-form-item>
+        <el-form-item label="行记录版本" prop="version" >
+          <el-input v-model="form.version" style="width: 370px;" />
+        </el-form-item>
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" style="width: 370px;" />
         </el-form-item>
+
         <el-form-item v-if="form.pid !== 0" label="状态" prop="enabled">
           <el-radio v-for="item in dict.dept_status" :key="item.id" v-model="form.enabled" :label="item.value">{{ item.label }}</el-radio>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark" >
+          <el-input v-model="form.remark" style="width: 370px;" />
         </el-form-item>
         <el-form-item v-if="form.pid !== 0" style="margin-bottom: 0;" label="上级部门" prop="pid">
           <treeselect v-model="form.pid" :options="depts" style="width: 370px;" placeholder="选择上级类目" />
         </el-form-item>
+
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -86,7 +101,7 @@ import udOperation from '@crud/UD.operation'
 
 // crud交由presenter持有
 const defaultCrud = CRUD({ title: '部门', url: 'api/dept', crudMethod: { ...crudDept }})
-const defaultForm = { id: null, name: null, pid: 1, enabled: 'true' }
+const defaultForm = { id: null, name: null, pid: 1, enabled: 'true',remark:null,version:null,keywords:null ,topCompanyCode:null,}
 export default {
   name: 'Dept',
   components: { Treeselect, crudOperation, rrOperation, udOperation },
@@ -123,6 +138,7 @@ export default {
     },
     // 提交前的验证
     [CRUD.HOOK.afterValidateCU]() {
+
       if (!this.form.pid && this.form.id !== 1) {
         this.$message({
           message: '上级部门不能为空',
@@ -130,6 +146,8 @@ export default {
         })
         return false
       }
+      //提交前给予验证
+      this.form.version++;
       return true
     },
     // 改变状态
