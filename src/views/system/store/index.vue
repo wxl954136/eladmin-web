@@ -4,7 +4,7 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.name" clearable size="small" placeholder="输入部门名称搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model="query.name" clearable size="small" placeholder="输入仓库名称搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <el-date-picker
           v-model="query.createTime"
           :default-time="['00:00:00','23:59:59']"
@@ -52,10 +52,11 @@
         <el-form-item label="备注" prop="remark" >
           <el-input v-model="form.remark" style="width: 370px;" />
         </el-form-item>
+        <!--
         <el-form-item v-if="form.pid !== 0" style="margin-bottom: 0;" label="上级部门" prop="pid">
           <treeselect v-model="form.pid" :options="depts" style="width: 370px;" placeholder="选择上级类目" />
         </el-form-item>
-
+        -->
 
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -83,7 +84,7 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column v-permission="['admin','dept:edit','dept:del']" label="操作" width="130px" align="center" fixed="right">
+      <el-table-column v-permission="['admin','store:edit','store:del']" label="操作" width="130px" align="center" fixed="right">
         <template slot-scope="scope">
           <udOperation
             :data="scope.row"
@@ -107,10 +108,10 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '部门', url: 'api/dept', crudMethod: { ...crudDept }})
-const defaultForm = { id: null, name: null, pid: 1, enabled: 'true',isDelete:0,remark:null,version:null,keywords:null ,topCompanyCode:null,}
+const defaultCrud = CRUD({ title: '仓库', url: 'api/sysStore', crudMethod: { ...crudDept }})
+const defaultForm = { id: null, name: null,  enabled: 'true',isDelete:0,remark:null,version:0,keywords:null ,topCompanyCode:null}
 export default {
-  name: 'Dept',
+  name: 'Store',
   components: { Treeselect, crudOperation, rrOperation, udOperation },
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   // 设置数据字典
@@ -120,13 +121,13 @@ export default {
       depts: [],
       rules: {
         name: [
-          { required: true, message: '请输入名称', trigger: 'blur' }
+          { required: true, message: '请输入仓库名称', trigger: 'blur' }
         ]
       },
       permission: {
-        add: ['admin', 'dept:add'],
-        edit: ['admin', 'dept:edit'],
-        del: ['admin', 'dept:del']
+        add: ['admin', 'store:add'],
+        edit: ['admin', 'store:edit'],
+        del: ['admin', 'store:del']
       },
       enabledTypeOptions: [
         { key: 'true', display_name: '正常' },
