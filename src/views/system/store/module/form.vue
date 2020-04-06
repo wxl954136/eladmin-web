@@ -14,10 +14,10 @@
       size="small"
       label-width="80px"
     >
-      <el-form-item label="id" prop="id" >
-        <el-input v-model="form.id" style="width: 370px;" />
+      <el-form-item label="id" prop="id" hidden >
+        <el-input v-model="form.id" style="width: 370px;"  />
       </el-form-item>
-      <el-form-item label="key" prop="keywords" >
+      <el-form-item label="key" prop="keywords"  hidden>
         <el-input v-model="form.keywords" style="width: 370px;" />
       </el-form-item>
 
@@ -27,8 +27,9 @@
       >
         <el-input
           v-model="form.name"
-          style="width: 370px;"
-        />
+          style="width: 370px;">
+              <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+        </el-input>
       </el-form-item>
       <el-form-item
         label="排序"
@@ -56,6 +57,24 @@
         </el-radio>
       </el-form-item>
 
+      <el-form-item
+        label="备注"
+        prop="remark"
+      >
+        <el-input
+          type = "textarea"
+          v-model="form.remark"
+          :autosize="{ minRows: 2, maxRows: 4}"
+          style="width: 370px;"
+        >
+        <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+        </el-input>
+      </el-form-item>
+      <!--
+
+   EL官网说明 https://cloud.tencent.com/developer/section/1489871
+-->
+
     </el-form>
     <div
       slot="footer"
@@ -81,8 +100,8 @@
 <script>
 import CRUD, { form } from '@crud/crud'
 import { getStores } from '@/api/system/store'
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
+
 
 const defaultForm = {
   id: null,
@@ -93,13 +112,13 @@ const defaultForm = {
     id: 1
   },
   isDelete:0,
-  remark:null,
-  version:null,
+  remark:"",
+  version:0,
   keywords:null,
   topCompanyCode:null
 }
 export default {
-  components: { Treeselect },
+  components: {  },
   mixins: [form(defaultForm)],
   props: {
     jobStatus: {
@@ -112,7 +131,7 @@ export default {
       stores: [],
       rules: {
         name: [
-          { required: true, message: '请输入名称', trigger: 'blur' }
+          { required: true, message: '请输入仓库名称', trigger: 'blur' }
         ],
         sort: [
           { required: true, message: '请输入序号', trigger: 'blur', type: 'number' }
@@ -122,6 +141,10 @@ export default {
     }
   },
   methods: {
+    sayHello() {
+
+
+    },
     [CRUD.HOOK.beforeToCU]() {
       getStores({ enabled: true }).then(res => {
         this.stores = res.content
@@ -138,7 +161,7 @@ export default {
         return false
       }
       */
-      this.form.version++
+     // this.form.version++
       return true
     }
   }

@@ -25,7 +25,7 @@ export default {
   },
   data() {
     return {
-      title: '【悠易】云科技有限公司',
+      title: '【悠易】科技有限公司',
       logo: Logo
     }
   }
