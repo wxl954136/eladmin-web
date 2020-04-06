@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getDepts(params) {
+export function getStores(params) {
   return request({
     url: 'api/sysStore',
     method: 'get',
@@ -36,4 +36,4 @@ export function edit(data) {
   })
 }
 
-export default { add, edit, del, getDepts }
+export default { add, edit, del, getStores }
