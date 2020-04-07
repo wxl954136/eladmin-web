@@ -26,7 +26,8 @@
         prop="name"
       >
         <el-input
-          v-model="form.name"
+          v-model.trim="form.name"
+          ref="input"
           style="width: 370px;">
               <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
         </el-input>
@@ -63,7 +64,7 @@
       >
         <el-input
           type = "textarea"
-          v-model="form.remark"
+          v-model.trim="form.remark"
           :autosize="{ minRows: 2, maxRows: 4}"
           style="width: 370px;"
         >
@@ -100,8 +101,6 @@
 <script>
 import CRUD, { form } from '@crud/crud'
 import { getStores } from '@/api/system/store'
-
-
 
 const defaultForm = {
   id: null,
@@ -142,13 +141,31 @@ export default {
   },
   methods: {
     sayHello() {
-
-
     },
+    /*
+    submitCU_me(){
+      this.crud.submitCU()
+      //提交后回调获得焦点
+      this.$nextTick(function () {
+        this.$refs.input.focus();
+      })
+    },
+    */
     [CRUD.HOOK.beforeToCU]() {
+      //新增时执行
       getStores({ enabled: true }).then(res => {
         this.stores = res.content
       })
+    },
+    [CRUD.HOOK.afterToCU]() {
+        //lukeWang：当点击添加按钮时，光标注处于文本尾处 ,一定要放到afterToCU,否则defautForm值还未赋值，仅是DOM元素加载
+        this.$nextTick(function () {
+            this.$refs.input.focus();
+            //this.$refs.input.select();  //文本全选中状态
+            length = this.$refs.input.length;
+            this.$refs.input.selectionStart = length;
+            this.$refs.input.selectionEnd = length;
+        })
     },
     // 提交前的验证
     [CRUD.HOOK.afterValidateCU]() {
@@ -161,7 +178,7 @@ export default {
         return false
       }
       */
-     // this.form.version++
+
       return true
     }
   }

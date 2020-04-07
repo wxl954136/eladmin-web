@@ -1,15 +1,23 @@
+<!--
+@author luke：王晓陆
+ID:   author    DATE          MARK
+001   LUKE      2020-04-02    基础信息以此类为解本
+002   LUKE      2020-04-06    在【input:仓库名称】自定义指定focus,特别注意:inserted:首次进来时会获得焦点，
+                              update:二次或改时获得焦占o
+003   LUKE      2020-04-07    在list列表中，当单独Radio切换时由于和edit公用PostMapping后台,
+                              为了保证行记录的version版本号(手动乐观锁),须在前端+1
+-->
 <template>
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-
       <eHeader :dict="dict" :permission="permission" />
       <crudOperation :permission="permission" />
     </div>
     <!--表格渲染-->
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
-      <el-table-column type="selection" width="55" />
-      <el-table-column v-if="columns.visible('name')" prop="name" label="仓库名称"  width="200"/>
+      <el-table-column type="selection" width="50" />
+      <el-table-column v-if="columns.visible('name')" prop="name" label="仓库名称"  width="150"/>
       <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序"  width="50"/>
       <el-table-column v-if="columns.visible('status')" prop="status" label="状态" align="center" width="80" >
         <template slot-scope="scope">
@@ -24,7 +32,7 @@
 
       <el-table-column v-if="columns.visible('remark')" prop="remark" label="备注"  width="200"/>
 
-      <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建日期">
+      <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建日期" >
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -93,6 +101,8 @@ export default {
         type: 'warning'
       }).then(() => {
         crud.crudMethod.edit(data).then(() => {
+          //lukeWang:更新完之后，version版本一定要累加一次，否则无法连续二次提次
+          data.version = data.version + 1
           crud.notify(this.dict.label.job_status[val] + '成功', 'success')
         }).catch(err => {
           data.enabled = !data.enabled
