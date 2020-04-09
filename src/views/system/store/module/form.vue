@@ -44,6 +44,21 @@
           style="width: 370px;"
         />
       </el-form-item>
+
+      <el-form-item
+        label="所属部门"
+        prop="dept.id"
+        :rules="rules.dept"
+      >
+        <treeselect
+          v-model="form.dept.id"
+          :options="depts"
+          style="width: 370px"
+          placeholder="选择部门"
+        />
+      </el-form-item>
+
+
       <el-form-item
         label="状态"
         prop="enabled"
@@ -100,7 +115,10 @@
 
 <script>
 import CRUD, { form } from '@crud/crud'
-import { getStores } from '@/api/system/store'
+import { getDepts } from '@/api/system/dept'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
 
 const defaultForm = {
   id: null,
@@ -110,6 +128,9 @@ const defaultForm = {
   store: {
     id: 1
   },
+  dept: {
+    id: null
+  },
   isDelete:0,
   remark:"",
   version:0,
@@ -117,7 +138,7 @@ const defaultForm = {
   topCompanyCode:null
 }
 export default {
-  components: {  },
+  components: { Treeselect },
   mixins: [form(defaultForm)],
   props: {
     jobStatus: {
@@ -127,18 +148,19 @@ export default {
   },
   data() {
     return {
-      stores: [],
+      depts: [],  //部门值集合
       rules: {
         name: [
           { required: true, message: '请输入仓库名称', trigger: 'blur' }
         ],
         sort: [
           { required: true, message: '请输入序号', trigger: 'blur', type: 'number' }
-        ]
-      //  , dept: { required: true, message: '所属部门不能为空', trigger: 'select' }
+        ] ,
+        dept: { required: true, message: '所属部门不能为空', trigger: 'select' }
       }
     }
   },
+
   methods: {
     sayHello() {
     },
@@ -152,9 +174,9 @@ export default {
     },
     */
     [CRUD.HOOK.beforeToCU]() {
-      //新增时执行
-      getStores({ enabled: true }).then(res => {
-        this.stores = res.content
+  //新增时执行
+      getDepts({ enabled: true }).then(res => {
+        this.depts = res.content
       })
     },
     [CRUD.HOOK.afterToCU]() {
@@ -165,11 +187,11 @@ export default {
             length = this.$refs.input.length;
             this.$refs.input.selectionStart = length;
             this.$refs.input.selectionEnd = length;
+
         })
     },
     // 提交前的验证
     [CRUD.HOOK.afterValidateCU]() {
-      /*
       if (!this.form.dept.id) {
         this.$notify({
           title: '所属部门不能为空',
@@ -177,7 +199,6 @@ export default {
         })
         return false
       }
-      */
 
       return true
     }

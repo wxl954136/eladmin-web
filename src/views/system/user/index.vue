@@ -111,7 +111,7 @@
             <el-form-item label="状态">
               <el-radio-group v-model="form.enabled" :disabled="form.id === user.id">
                 <el-radio
-                  v-for="item in dict.user_status"
+                  v-for="item in dict.job_status"
                   :key="item.id"
                   :label="item.value"
                 >{{ item.label }}</el-radio>
@@ -194,7 +194,7 @@
 </template>
 
 <script>
-import crudUser from '@/api/system/user'
+import crudStore from '@/api/system/user'
 import { isvalidPhone } from '@/utils/validate'
 import { getDepts } from '@/api/system/dept'
 import { getAll, getLevel } from '@/api/system/role'
@@ -210,14 +210,14 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 let userRoles = []
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '用户', url: 'api/users', crudMethod: { ...crudUser }})
+const defaultCrud = CRUD({ title: '用户', url: 'api/users', crudMethod: { ...crudStore }})
 const defaultForm = { id: null, username: null, nickName: null, sex: '男', email: null, enabled: 'false', roles: [], job: { id: null }, dept: { id: null }, phone: null }
 export default {
   name: 'User',
   components: { Treeselect, crudOperation, rrOperation, udOperation, pagination },
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   // 数据字典
-  dicts: ['user_status'],
+  dicts: ['job_status'],
   data() {
     // 自定义验证
     const validPhone = (rule, value, callback) => {
@@ -369,22 +369,24 @@ export default {
     },
     // 切换部门
     handleNodeClick(data) {
+      alert(this.query)
       if (data.pid === 0) {
         this.query.deptId = null
       } else {
         this.query.deptId = data.id
       }
+
       this.crud.toQuery()
     },
     // 改变状态
     changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
+      this.$confirm('此操作将 "' + this.dict.label.job_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        crudUser.edit(data).then(res => {
-          this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+        crudStore.edit(data).then(res => {
+          this.crud.notify(this.dict.label.job_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
         }).catch(() => {
           data.enabled = !data.enabled
         })
