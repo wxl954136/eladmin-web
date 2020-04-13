@@ -42,8 +42,11 @@
         <el-input v-model="form.topCompanyCode" style="width: 370px;" />
         </el-form-item>
 
-        <el-form-item label="分类名称" prop="name">
-          <el-input v-model="form.name" style="width: 370px;" />
+        <el-form-item label="分类名称" prop="name" >
+          <el-input v-model="form.name" ref="input" style="width: 370px;" >
+            <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+          </el-input>
+
         </el-form-item>
 
         <el-form-item v-if="form.pid !== 0" label="状态" prop="enabled">
@@ -66,7 +69,11 @@
     <el-table ref="table" v-loading="crud.loading" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" default-expand-all :data="crud.data" row-key="id" @select="crud.selectChange" @select-all="crud.selectAllChange" @selection-change="crud.selectionChangeHandler">
       <el-table-column :selectable="checkboxT" type="selection" width="55" />
       <el-table-column v-if="columns.visible('name')" label="分类名称" prop="name" />
-      <el-table-column v-if="columns.visible('fullName')" label="分类全称" prop="fullName" />
+      <el-table-column v-if="columns.visible('fullName')" label="分类全称" prop="fullName" >
+        <template slot-scope="scope">
+          <span>{{ scope.row.fullName.substring(0,scope.row.fullName.length-1) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column v-if="columns.visible('enabled')" label="状态" align="center" prop="enabled">
         <template slot-scope="scope">
           <el-switch
@@ -107,10 +114,10 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 
 // crud交由presenter持有
-const defaultCrud = CRUD({ title: '部门', url: 'api/sysSkuClassify', crudMethod: { ...crudClassify }})
+const defaultCrud = CRUD({ title: '商品分类', url: 'api/sysSkuClassify', crudMethod: { ...crudClassify }})
 const defaultForm = { id: null, name: null, fullName:null,pid: 1, enabled: 'true',isDelete:0,remark:null,version:null,keywords:null ,topCompanyCode:null,}
 export default {
-  name: 'Dept',
+  name: 'SkuClassify',
   components: { Treeselect, crudOperation, rrOperation, udOperation },
   mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
   // 设置数据字典
@@ -141,6 +148,14 @@ export default {
       // 获取所有部门
       crudClassify.getSkuClassifys({ enabled: true }).then(res => {
         this.classifys = res.content
+      })
+      this.$nextTick(function () {
+        this.$refs.input.focus();
+        //this.$refs.input.select();  //文本全选中状态
+        length = this.$refs.input.length;
+        this.$refs.input.selectionStart = length;
+        this.$refs.input.selectionEnd = length;
+
       })
     },
     // 提交前的验证

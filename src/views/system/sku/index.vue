@@ -5,17 +5,17 @@
       <el-col :xs="9" :sm="6" :md="4" :lg="4" :xl="4">
         <div class="head-container">
           <el-input
-            v-model="deptName"
+            v-model="sysSkuClassify"
             clearable
             size="small"
-            placeholder="输入部门名称搜索"
+            placeholder="输入商品分类名称搜索"
             prefix-icon="el-icon-search"
             class="filter-item"
-            @input="getDeptDatas"
+            @input="getSysSkuClassifyDatas"
           />
         </div>
         <el-tree
-          :data="deptDatas"
+          :data="sysSkuClassifyDatas"
           :props="defaultProps"
           :expand-on-click-node="false"
           default-expand-all
@@ -29,11 +29,11 @@
           <div v-if="crud.props.searchToggle">
             <!-- 搜索 -->
             <el-input
-              v-model="query.name"
+              v-model="query.blurry"
               clearable
               size="small"
-              placeholder="输入名称搜索"
-              style="width: 200px;"
+              placeholder="输入编号助记码商品全称搜索"
+              style="width: 220px;"
               class="filter-item"
               @keyup.enter.native="crud.toQuery"
             />
@@ -72,44 +72,105 @@
         <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="570px">
           <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
             <el-row>
-                <el-col :span="12">
-                    <el-form-item label="名称" prop="name">
-                        <el-input  v-model.trim="form.name"  ref="input"  style="width: 178px" >
-                          <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
-                        </el-input>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <el-form-item  label="部门"  prop="dept.id"   :rules="rules.dept" >
-                      <treeselect  v-model="form.dept.id"  :options="depts" style="width: 178px" placeholder="选择部门"/>
-                    </el-form-item>
-                </el-col>
+              <el-col :span="12">
+                <el-form-item label="编号" prop="code"  label-width="80px">
+                  <el-input  v-model.trim="form.code"    style="width: 160px" >
+                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="助记码" prop="mnemonicCode"  label-width="80px">
+                  <el-input  v-model.trim="form.mnemonicCode"     style="width: 160px" >
+                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+                  </el-input>
+                </el-form-item>
+              </el-col>
             </el-row>
             <el-row>
-                <el-col :span="12">
-                    <el-form-item  label="排序"  prop="sort" >
-                        <el-input-number v-model.number="form.sort"  :min="0"  :max="999"  controls-position="right"  style="width: 178px"/>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                   <el-form-item label="状态">
-                       <el-radio-group v-model="form.enabled" >
-                           <el-radio  v-for="item in dict.job_status"  :key="item.id"  :label="item.value" >{{ item.label }}</el-radio>
-                       </el-radio-group>
-                   </el-form-item>
-               </el-col>
-           </el-row>
+              <el-col :span="12">
+                <el-form-item label="品牌" prop="brand"  label-width="80px">
+                  <el-input  v-model.trim="form.brand"    style="width: 160px" >
+                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="颜色" prop="color"  label-width="80px">
+                  <el-input  v-model.trim="form.color"     style="width: 160px" >
+                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col  :span="12">
+                <el-form-item label="型号" prop="name"  label-width="80px">
+                  <el-input  v-model.trim="form.name"    style="width: 160px" >
+                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+
+                <el-form-item  label="分类"  label-width="80px" prop="sysSkuClassify.id"   :rules="rules.sysSkuClassify" >
+                  <treeselect  v-model="form.sysSkuClassify.id"  :options="sysSkuClassifyDatas" style="width: 170px" placeholder="选择商品分类"/>
+                </el-form-item>
+
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col  :span="24">
+                <el-form-item label="商品全称" prop="fullName"  label-width="80px">
+                  <el-input  v-model.trim="form.fullName"    style="width: 425px" >
+                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col  :span="8">
+                <el-form-item label="库龄" prop="stockAge"  label-width="80px">
+                  <el-input  v-model.trim="form.stockAge"    style="width: 80px" >
+                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="成本类别" prop="costFlag"  label-width="80px">
+                  <el-input  v-model.trim="form.costFlag"    style="width: 80px" >
+                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+              <el-col  :span="8">
+                <el-form-item label="虚拟商品" prop="virFlag"  label-width="80px">
+                  <el-checkbox v-model="form.virFlag" style="margin:0px 0 0px 0px;">是
+                  </el-checkbox>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
            <el-row>
                <el-form-item label="备注"   prop="remark"  >
                <el-input   type = "textarea" v-model.trim="form.remark"
-                           :autosize="{ minRows: 2, maxRows: 4}"
+                           :autosize="{ minRows: 2, maxRows: 3}"
                            style="width: 440px;"
                >
                  <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
                </el-input>
              </el-form-item>
            </el-row>
+            <el-row>
 
+              <el-col :span="12">
+                <el-form-item label="状态">
+                  <el-radio-group v-model="form.enabled" >
+                    <el-radio  v-for="item in dict.job_status"  :key="item.id"  :label="item.value" >{{ item.label }}</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+            </el-row>
          </el-form>
          <div slot="footer" class="dialog-footer">
            <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -119,18 +180,46 @@
        <!--表格渲染-->
         <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
           <el-table-column :selectable="checkboxT" type="selection" width="55" />
-          <el-table-column v-if="columns.visible('name')" prop="name" label="仓库名称"  width="150"/>
-          <el-table-column v-if="columns.visible('sort')" prop="sort" label="排序"  width="50"/>
-          <el-table-column v-if="columns.visible('dept')" :show-overflow-tooltip="true" width="110" prop="dept" label="部门">
+          <el-table-column v-if="columns.visible('code')" prop="code" label="商品编号"  width="90"/>
+          <el-table-column v-if="columns.visible('mnemonic_code')" prop="mnemonic_code" label="助记码"  width="90"/>
+          <el-table-column v-if="columns.visible('brand')" prop="brand" label="品牌"  width="80"/>
+          <el-table-column v-if="columns.visible('name')" prop="name" label="商品型号"  width="150"/>
+          <el-table-column v-if="columns.visible('color')" prop="color" label="颜色"  width="80"/>
+          <el-table-column v-if="columns.visible('fullName')" prop="fullName" label="商品全称"  width="150"/>
+          <el-table-column v-if="columns.visible('sysSkuClassify')" :show-overflow-tooltip="true" width="120" prop="sysSkuClassify" label="商品分类">
             <template slot-scope="scope">
-              <div>{{ scope.row.dept.name }} </div>
+              <div>{{ scope.row.sysSkuClassify.fullName.substring(0,scope.row.sysSkuClassify.fullName.length-1) }} </div>
             </template>
           </el-table-column>
+          <el-table-column v-if="columns.visible('stockAge')" prop="stockAge" label="库龄"  width="60" align="right"/>
+          <el-table-column v-if="columns.visible('costFlag')" prop="costFlag" label="成本类别"  width="70">
+            <template slot-scope="scope">
+              <div v-if="scope.row.costFlag === true">
+                <el-tag  effect="dark" type = "success">单体</el-tag>
+              </div>
+              <div v-else>
+                <el-tag  effect="dark" type = "info">均价</el-tag>
+              </div>
+
+            </template>
+          </el-table-column>
+          <el-table-column v-if="columns.visible('serialInfo')" prop="serialInfo" label="串号信息"  width="80"/>
+          <el-table-column v-if="columns.visible('virFlag')" prop="virFlag" label="虚拟商品"  align="center" width="70"   >
+              <template slot-scope="scope">
+                <div v-if="scope.row.virFlag === true">
+                  <el-tag  effect="dark" type = "danger">是</el-tag>
+                </div>
+                <div v-else>
+                  <el-tag  effect="dark" type = "info">否</el-tag>
+                </div>
+
+              </template>
+          </el-table-column>
+
           <el-table-column v-if="columns.visible('enabled')" label="状态" align="center" prop="enabled">
             <template slot-scope="scope">
               <el-switch
                 v-model="scope.row.enabled"
-                :disabled="user.id === scope.row.id"
                 active-color="#409EFF"
                 inactive-color="#F56C6C"
                 @change="changeEnabled(scope.row, scope.row.enabled)"
@@ -154,7 +243,7 @@
               <udOperation
                 :data="scope.row"
                 :permission="permission"
-                :disabled-dle="scope.row.id === user.id"
+
               />
             </template>
           </el-table-column>
@@ -167,8 +256,8 @@
 </template>
 
 <script>
-  import crudStore from '@/api/system/store'
-  import { getDepts } from '@/api/system/dept'
+  import curdSku from '@/api/system/sku'
+  import { getSkuClassifys } from '@/api/system/skuclassify'
   import CRUD, { presenter, header, form, crud } from '@crud/crud'
   import rrOperation from '@crud/RR.operation'
   import crudOperation from '@crud/CRUD.operation'
@@ -180,17 +269,24 @@
 
 
   // crud交由presenter持有
-  const defaultCrud = CRUD({ title: '仓库', url: 'api/sysStore', crudMethod: { ...crudStore }})
+  const defaultCrud = CRUD({ title: '商品信息', url: 'api/sysSku', crudMethod: { ...curdSku }})
   const defaultForm = {
     id: null,
+    code:'',
+    mnemonicCode:'',
     name: '',
-    sort: 999,
+    brand:'',
+    color:'',
+    fullName:'',
+    sysSkuClassify: { id: null },
+    stockAge:0,
+    costFlag:0,
+    serialInfo:'',
+    virFlag:0,
     enabled: 'true',
-    dept: {
-      id: null
-    },
-    isDelete:0,
+    sort:999,
     remark:"",
+    isDelete:0,
     version:0,
     keywords:null,
     topCompanyCode:null
@@ -206,12 +302,12 @@
 
       return {
         height: document.documentElement.clientHeight - 180 + 'px;',
-        deptName: '', depts: [], deptDatas: [],
+        sysSkuClassify: '', skus: [], sysSkuClassifyDatas: [],
         defaultProps: { children: 'children', label: 'name' },
         permission: {
-          add: ['admin', 'store:add'],
-          edit: ['admin', 'store:edit'],
-          del: ['admin', 'store:del']
+          add: ['admin', 'sku:add'],
+          edit: ['admin', 'sku:edit'],
+          del: ['admin', 'sku:del']
         },
         enabledTypeOptions: [
           { key: 'true', display_name: '开启' },
@@ -219,12 +315,10 @@
         ],
         rules: {
           name: [
-            { required: true, message: '请输入仓库名称', trigger: 'blur' }
+            { required: true, message: '请输入商品名称', trigger: 'blur' }
           ],
-          sort: [
-            { required: true, message: '请输入序号', trigger: 'blur', type: 'number' }
-          ] ,
-          dept: { required: true, message: '所属部门不能为空', trigger: 'select' }
+          sysSkuClassify: { required: true, message: '商品分类不能为空', trigger: 'select' }
+
         }
       }
     },
@@ -235,7 +329,7 @@
     },
     created() {
       this.$nextTick(() => {
-        this.getDeptDatas()
+        this.getSysSkuClassifyDatas()
         this.crud.toQuery()
       })
     },
@@ -254,7 +348,7 @@
       },
       // 新增与编辑前做的操作
       [CRUD.HOOK.afterToCU](crud, form) {
-        this.getDepts()
+        this.getSkuClassifys()
         form.enabled = form.enabled.toString()  //一定要这里toString,否则点新增或修改时，无法选中
 
         //lukeWang：当点击添加按钮时，光标注处于文本尾处 ,一定要放到afterToCU,否则defautForm值还未赋值，仅是DOM元素加载
@@ -273,36 +367,38 @@
       },
       // 提交前做的操作
       [CRUD.HOOK.afterValidateCU](crud) {
-        if (!crud.form.dept.id) {
+        /*
+        if (!crud.form.sysSkuClassify.id) {
           this.$message({
-            message: '部门不能为空',
+            message: '商品分类不能为空',
             type: 'warning'
           })
           return false
         }
+         */
         return true
       },
       // 获取左侧部门数据
-      getDeptDatas() {
+      getSysSkuClassifyDatas() {
         const sort = 'id,desc'
         const params = { sort: sort }
-        if (this.deptName) { params['name'] = this.deptName }
-        getDepts(params).then(res => {
-          this.deptDatas = res.content
+        if (this.sysSkuClassify) { params['name'] = this.sysSkuClassify }
+        getSkuClassifys(params).then(res => {
+          this.sysSkuClassifyDatas = res.content
         })
       },
       // 获取弹窗内部门数据
-      getDepts() {
-        getDepts({ enabled: true }).then(res => {
-          this.depts = res.content
+      getSkuClassifys() {
+        getSkuClassifys({ enabled: true }).then(res => {
+          this.skus = res.content
         })
       },
-      // 切换部门
+      // 切换分类
       handleNodeClick(data) {
         if (data.pid === 0) {
-          this.query.deptId = null
+         this.query.classifyId = null
         } else {
-          this.query.deptId = data.id
+         this.query.classifyId = data.id
         }
         this.crud.toQuery()
       },
@@ -313,7 +409,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          crudStore.edit(data).then(res => {
+          curdSku.edit(data).then(res => {
             this.crud.notify(this.dict.label.job_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
           }).catch(() => {
             data.enabled = !data.enabled
