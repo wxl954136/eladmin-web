@@ -90,9 +90,21 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="品牌" prop="brand"  label-width="80px">
+                  <el-autocomplete
+                    class="inline-input"
+                    v-model="form.brand"
+                    :fetch-suggestions="querySearch"
+                    placeholder="请输入内容"
+                    style="width: 160px"
+                  >
+                    <i slot="suffix" class="el-input__icon  el-icon-search"></i>
+
+                  </el-autocomplete>
+<!--
                   <el-input  v-model.trim="form.brand"    style="width: 160px" >
                     <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
                   </el-input>
+                  -->
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -106,11 +118,12 @@
             <el-row>
               <el-col  :span="12">
                 <el-form-item label="型号" prop="name"  label-width="80px">
-                  <el-input  v-model.trim="form.name"    style="width: 160px" >
+                  <el-input  v-model="form.name"    style="width: 160px" >
                     <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
                   </el-input>
                 </el-form-item>
               </el-col>
+
               <el-col :span="12">
 
                 <el-form-item  label="分类"  label-width="80px" prop="sysSkuClassify.id"   :rules="rules.sysSkuClassify" >
@@ -119,38 +132,36 @@
 
               </el-col>
             </el-row>
+
             <el-row>
               <el-col  :span="24">
                 <el-form-item label="商品全称" prop="fullName"  label-width="80px">
-                  <el-input  v-model.trim="form.fullName"    style="width: 425px" >
+                  <el-input  v-model="form.fullName"    style="width: 425px" >
                     <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
                   </el-input>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col  :span="8">
-                <el-form-item label="库龄" prop="stockAge"  label-width="80px">
-                  <el-input  v-model.trim="form.stockAge"    style="width: 80px" >
-                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
-                  </el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="成本类别" prop="costFlag"  label-width="80px">
-                  <el-input  v-model.trim="form.costFlag"    style="width: 80px" >
-                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
-                  </el-input>
-                </el-form-item>
-              </el-col>
-              <el-col  :span="8">
-                <el-form-item label="虚拟商品" prop="virFlag"  label-width="80px">
-                  <el-checkbox v-model="form.virFlag" style="margin:0px 0 0px 0px;">是
-                  </el-checkbox>
                 </el-form-item>
               </el-col>
             </el-row>
 
+            <el-row>
+              <el-col  :span="12">
+                <el-form-item label="库龄" prop="stockAge"  label-width="80px"  >
+                  <el-input-number v-model="form.stockAge" :min="0" :max="1000" label="库龄"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="成本计算" prop="costFlag"  label-width="80px">
+                  <el-switch
+                    style="display: block;margin:5px 0 0px 0px;"
+                    v-model="form.costFlag"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949"
+                    active-text="单体"
+                    inactive-text="均价">
+                  </el-switch>
+                </el-form-item>
+              </el-col>
+            </el-row>
            <el-row>
                <el-form-item label="备注"   prop="remark"  >
                <el-input   type = "textarea" v-model.trim="form.remark"
@@ -162,7 +173,12 @@
              </el-form-item>
            </el-row>
             <el-row>
-
+              <el-col  :span="8">
+                <el-form-item label="虚拟商品" prop="virFlag"  label-width="80px">
+                  <el-checkbox v-model="form.virFlag" style="margin:0px 0 0px 0px;">是
+                  </el-checkbox>
+                </el-form-item>
+              </el-col>
               <el-col :span="12">
                 <el-form-item label="状态">
                   <el-radio-group v-model="form.enabled" >
@@ -171,6 +187,8 @@
                 </el-form-item>
               </el-col>
             </el-row>
+
+
          </el-form>
          <div slot="footer" class="dialog-footer">
            <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -243,7 +261,6 @@
               <udOperation
                 :data="scope.row"
                 :permission="permission"
-
               />
             </template>
           </el-table-column>
@@ -293,7 +310,7 @@
   }
 
   export default {
-    name: 'Store',
+    name: 'Sku',
     components: { Treeselect, crudOperation, rrOperation, udOperation, pagination },
     mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
     // 数据字典
@@ -302,7 +319,7 @@
 
       return {
         height: document.documentElement.clientHeight - 180 + 'px;',
-        sysSkuClassify: '', skus: [], sysSkuClassifyDatas: [],
+        sysSkuClassify: '', skus: [], sysSkuClassifyDatas: [],brands:[],
         defaultProps: { children: 'children', label: 'name' },
         permission: {
           add: ['admin', 'sku:add'],
@@ -340,6 +357,18 @@
       }
     },
     methods: {
+      querySearch(queryString, cb) {
+        var brands = this.brands;
+        var results = queryString ? brands.filter(this.createFilter(queryString)) : brands;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+
+      },
+      createFilter(queryString) {
+        return (brands) => {
+          return (brands.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
       [CRUD.HOOK.afterAddError](crud) {
         this.afterErrorMethod(crud)
       },
@@ -349,6 +378,7 @@
       // 新增与编辑前做的操作
       [CRUD.HOOK.afterToCU](crud, form) {
         this.getSkuClassifys()
+        this.getBrands()
         form.enabled = form.enabled.toString()  //一定要这里toString,否则点新增或修改时，无法选中
 
         //lukeWang：当点击添加按钮时，光标注处于文本尾处 ,一定要放到afterToCU,否则defautForm值还未赋值，仅是DOM元素加载
@@ -391,6 +421,13 @@
       getSkuClassifys() {
         getSkuClassifys({ enabled: true }).then(res => {
           this.skus = res.content
+        })
+      },
+      getBrands() {
+        curdSku.getBrands().then(res => {
+          this.brands = res.content;
+        }).catch(() => {
+
         })
       },
       // 切换分类

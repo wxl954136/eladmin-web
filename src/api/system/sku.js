@@ -1,5 +1,7 @@
 import request from '@/utils/request'
 
+
+
 export function getSkus(params) {
   return request({
     url: 'api/sysSku',
@@ -32,4 +34,19 @@ export function edit(data) {
   })
 }
 
-export default { add, edit, del, getSkus }
+
+export function getBrands() {
+  return request({
+    url: 'api/sysSku/brands',
+    method: 'get'
+  })
+}
+
+export function getColors(params) {
+  return request({
+    url: 'api/sysSku/colors',
+    method: 'get',
+    params
+  })
+}
+export default { add, edit, del, getSkus,getBrands,getColors }
