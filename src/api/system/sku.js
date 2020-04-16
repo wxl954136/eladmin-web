@@ -42,11 +42,10 @@ export function getBrands() {
   })
 }
 
-export function getColors(params) {
+export function getColors() {
   return request({
     url: 'api/sysSku/colors',
-    method: 'get',
-    params
+    method: 'get'
   })
 }
 export default { add, edit, del, getSkus,getBrands,getColors }

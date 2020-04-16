@@ -100,19 +100,23 @@
                     <i slot="suffix" class="el-input__icon  el-icon-search"></i>
 
                   </el-autocomplete>
-<!--
-                  <el-input  v-model.trim="form.brand"    style="width: 160px" >
-                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
-                  </el-input>
-                  -->
+
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="颜色" prop="color"  label-width="80px">
-                  <el-input  v-model.trim="form.color"     style="width: 160px" >
-                    <i slot="suffix" class="el-input__icon  el-icon-edit"></i>
-                  </el-input>
-                </el-form-item>
+
+                  <el-form-item label="颜色" prop="color"  label-width="80px">
+                    <el-autocomplete
+                      class="inline-input"
+                      v-model="form.color"
+                      :fetch-suggestions="querySearchColor"
+                      placeholder="请输入内容"
+                      style="width: 160px"
+                    >
+                      <i slot="suffix" class="el-input__icon  el-icon-search"></i>
+                    </el-autocomplete>
+
+                  </el-form-item>
               </el-col>
             </el-row>
             <el-row>
@@ -319,7 +323,7 @@
 
       return {
         height: document.documentElement.clientHeight - 180 + 'px;',
-        sysSkuClassify: '', skus: [], sysSkuClassifyDatas: [],brands:[],
+        sysSkuClassify: '', skus: [], sysSkuClassifyDatas: [],brands:[],colors:[],
         defaultProps: { children: 'children', label: 'name' },
         permission: {
           add: ['admin', 'sku:add'],
@@ -362,11 +366,21 @@
         var results = queryString ? brands.filter(this.createFilter(queryString)) : brands;
         // 调用 callback 返回建议列表的数据
         cb(results);
-
       },
       createFilter(queryString) {
         return (brands) => {
           return (brands.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+      querySearchColor(queryString, cb) {
+        var colors = this.colors;
+        var results = queryString ? colors.filter(this.createFilterColor(queryString)) : colors;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+      createFilterColor(queryString) {
+        return (colors) => {
+          return (colors.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
         };
       },
       [CRUD.HOOK.afterAddError](crud) {
@@ -379,6 +393,7 @@
       [CRUD.HOOK.afterToCU](crud, form) {
         this.getSkuClassifys()
         this.getBrands()
+        this.getColors()
         form.enabled = form.enabled.toString()  //一定要这里toString,否则点新增或修改时，无法选中
 
         //lukeWang：当点击添加按钮时，光标注处于文本尾处 ,一定要放到afterToCU,否则defautForm值还未赋值，仅是DOM元素加载
@@ -421,11 +436,20 @@
       getSkuClassifys() {
         getSkuClassifys({ enabled: true }).then(res => {
           this.skus = res.content
+
         })
       },
       getBrands() {
         curdSku.getBrands().then(res => {
           this.brands = res.content;
+        }).catch(() => {
+
+        })
+      },
+      getColors() {
+        curdSku.getColors().then(res => {
+          this.colors = res.content;
+
         }).catch(() => {
 
         })
