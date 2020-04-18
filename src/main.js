@@ -39,9 +39,13 @@ Vue.use(Element, {
 
 Vue.config.productionTip = false
 
+Vue.prototype.AMOUNTDIGIT = 2   //全局小数位数
+
 new Vue({
   el: '#app',
+
   router,
   store,
   render: h => h(App)
 })
+

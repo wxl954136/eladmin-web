@@ -49,39 +49,52 @@
         </div>
       </el-dialog>
       <!--表格渲染-->
-      <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+      <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small"  style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column type="expand">
+          <!--https://blog.csdn.net/qq_35779012/article/details/100554942-->
           <template slot-scope="props">
-            <el-form label-position="left" inline class="demo-table-expand">
-              <el-form-item label="请求方法">
-                <span>22222</span>
-              </el-form-item>
-              <el-form-item label="请求参数">
-                <span>111111</span>
-              </el-form-item>
-            </el-form>
+            <el-table :data="props.row.bizPoInDetails" stripe  border  style = "margin-top: -21px;margin-left:50px; margin-bottom: -21px;">
+                <el-table-column label = "商品名称" prop="sysSku" fixed width="200"  >
+                  <template slot-scope="scope">
+                    <div>{{ scope.row.sysSku.fullName }} </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label = "数量" prop="qty" width="90" align="right"></el-table-column>
+                <el-table-column label = "单价" prop="price" width="90"  align="right" >
+                  <template slot-scope="scope">
+                    <div><i class="el-icon-money"></i>{{ scope.row.price.toFixed(AMOUNTDIGIT)}} </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label = "总额"  width="90" align="right">
+                  <template slot-scope="scope">
+                    <div><i class="¥"></i>{{ scope.row.qty *  scope.row.price.toFixed(AMOUNTDIGIT)}} </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label = "税率(%)" prop="rate" width="90" align="right"></el-table-column>
+            </el-table>
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('bizNo')" prop="bizNo" label="单据编号" />
-        <el-table-column v-if="columns.visible('bizDate')" prop="bizDate" label="单据日期"   >
+        <el-table-column v-if="columns.visible('bizNo')" prop="bizNo" label="单据编号" width="130" />
+        <el-table-column v-if="columns.visible('bizDate')" prop="bizDate" label="单据日期"  width="100" >
           <template slot-scope="scope">
-            <span>{{scope.row.bizDate }}</span>
+            <i class="el-icon-time"></i>
+            <span>{{parseTime(new Date(scope.row.bizDate),'{y}-{m}-{d}')}}</span>
           </template>
         </el-table-column>
 
-        <el-table-column v-if="columns.visible('sysTrader')" :show-overflow-tooltip="true" width="110" prop="sysTrader" label="往来单位">
+        <el-table-column v-if="columns.visible('sysTrader')" :show-overflow-tooltip="true" width="180" prop="sysTrader" label="往来单位"    >
           <template slot-scope="scope">
             <div>{{ scope.row.sysTrader.name }} </div>
           </template>
         </el-table-column>
 
-        <el-table-column v-if="columns.visible('sysStore')" :show-overflow-tooltip="true" width="110" prop="sysStore" label="仓库">
+        <el-table-column v-if="columns.visible('sysStore')" :show-overflow-tooltip="true" width="180" prop="sysStore" label="仓库">
           <template slot-scope="scope">
             <div>{{ scope.row.sysStore.name }} </div>
           </template>
         </el-table-column>
-        <el-table-column v-if="columns.visible('handler')" prop="handler" label="经手人" />
+        <el-table-column v-if="columns.visible('handler')" prop="handler" label="经手人"  width="100" />
         <el-table-column v-if="columns.visible('remark')" prop="remark" label="备注" />
         <el-table-column v-if="columns.visible('createTime')" prop="createTime" label="创建日期" width="150px">
           <template slot-scope="scope">
