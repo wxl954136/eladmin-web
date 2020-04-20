@@ -59,7 +59,9 @@ export default {
       return new Promise((resolve, reject) => {
         this.loading = true
         // 请求数据
+
         initData(this.url, this.getQueryParame()).then(data => {
+
           this.total = data.totalElements
           this.data = data.content
           // time 毫秒后显示表格

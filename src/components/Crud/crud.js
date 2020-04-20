@@ -49,6 +49,7 @@ function CRUD(options) {
     props: {},
     // 在主页准备
     queryOnPresenterCreated: true,
+
     // 调试开关
     debug: false
   }
@@ -94,6 +95,7 @@ function CRUD(options) {
     loading: true,
     // 导出的 Loading
     downloadLoading: false,
+    routerAddress:'',
     // 删除的 Loading
     delAllLoading: false
   }
