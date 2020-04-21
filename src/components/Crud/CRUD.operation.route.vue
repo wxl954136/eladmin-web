@@ -22,7 +22,7 @@
         type="success"
         icon="el-icon-edit"
         :disabled="crud.selections.length !== 1"
-        @click="crud.toEdit(crud.selections[0])"
+        @click="toEditRecord(crud.selections[0])"
       >
         修改
       </el-button>
@@ -121,8 +121,14 @@ export default {
   },
   methods: {
     toAddRecord(){
-      this.$router.push({path: this.crud.routerAddress})
+      this.$router.push({path: this.crud.routerAddress + "-1"})
+
    //   this.crud.props.searchToggle = !this.crud.props.searchToggle
+    },
+    toEditRecord(obj){
+      //alert(obj.id + "======" + obj.remark)
+      this.$router.push({path: this.crud.routerAddress + obj.id})
+      //   this.crud.props.searchToggle = !this.crud.props.searchToggle
     },
     toDelete(datas) {
       this.$confirm(`确认删除选中的${datas.length}条数据?`, '提示', {

@@ -1,7 +1,7 @@
 import request from '@/utils/request'
-export function get() {
+export function get(poId) {
   return request({
-    url: 'api/bizPoIn/test',
+    url: 'api/bizPoIn/get/' + poId ,
     method: 'get'
   })
 }

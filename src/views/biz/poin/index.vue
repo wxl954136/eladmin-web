@@ -191,7 +191,7 @@
       }
     },
     mounted(){
-      this.crud.routerAddress = '/po/poin/config/add'  //新增的路由地址，crud.js中定义
+      this.crud.routerAddress = '/po/poin/config/'  //新增的路由地址，crud.js中定义
     },
     methods: {
       // 获取数据前设置好接口地址

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row :gutter="15">
-
+      <el-form ref="form" :model="form" :rules="rules" size="small" label-width="78px">
       <el-col>
         <el-card class="box-card" shadow="never">
           <div slot="header" class="clearfix">
@@ -13,7 +13,7 @@
             </el-button-group>
 
           </div>
-          <el-form ref="form" :model="form" :rules="rules" size="small" label-width="78px">
+
 
 
 
@@ -26,12 +26,13 @@
               <el-col :span="6">
                 <el-form-item label="单据日期" prop="bizDate">
                   <el-date-picker
-                    v-model="form.bizDate"
+                    v-model="form.bizDate.toString()"
                     align="right"
                     type="date"
+                    value-format="yyyy-MM-dd"
                     placeholder="选择日期"
                     style="width: 180px;"
-                    :picker-options="pickerOptions">
+                    >
                   </el-date-picker>
                 </el-form-item>
               </el-col>
@@ -61,7 +62,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="备注" prop="cover">
+                <el-form-item label="备注" prop="remark">
 
                   <el-input   type = "textarea" v-model="form.remark"
                               :autosize="{ minRows: 2, maxRows: 3}"
@@ -72,19 +73,29 @@
               </el-col>
 
             </el-row>
-          </el-form>
+
         </el-card>
       </el-col>
       <el-col style="margin-bottom: 10px">
         <el-card class="box-card" shadow="never">
           <div slot="header" class="clearfix">
-            <span class="role-span">商品信息：{{ operatorType }}</span>
+            <span class="role-span">商品信息：{{ poId }}</span>
             <el-button-group style = "float:right">
               <el-button type="primary" size="mini" icon="el-icon-plus">增加行</el-button>
               <el-button type="primary" size="mini">删除行<i class="el-icon-arrow-right el-icon-minus "></i></el-button>
             </el-button-group>
           </div>
-          <el-table v-loading="loading" :data="data" :max-height="tableHeight" size="small" style="width: 100%;margin-bottom: 15px">
+          <el-table     :data="data.bizPoInDetails"  :max-height="tableHeight" size="small" style="width: 100%;margin-bottom: 15px">
+            <el-table-column prop="qty" label="数量">
+              <template slot-scope="scope">
+                <el-input v-model="data.bizPoInDetails[scope.$index].qty" size="mini" class="edit-input" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="price" label="单价">
+              <template slot-scope="scope">
+              <el-input v-model="data.bizPoInDetails[scope.$index].price" size="mini" class="edit-input" />
+              </template>
+            </el-table-column>
 
 
 
@@ -92,6 +103,7 @@
           </el-table>
         </el-card>
       </el-col>
+      </el-form>
     </el-row>
   </div>
 </template>
@@ -106,8 +118,8 @@
     mixins: [crud],
     data() {
       return {
-        operatorType: '', tableHeight: 550, columnLoading: false, configLoading: false, dicts: [], syncLoading: false, genLoading: false,
-        form: { id: null, bizPoInDetails:{id:null},sysStore:{id:null},sysTrader:{id:null},handler:"",remark:null,isDelete:0,version:0,topCompanyCode:null},
+        poId: '', tableHeight: 550, columnLoading: false, configLoading: false, dicts: [], syncLoading: false, genLoading: false,
+        form: { id: null, bizNo:'',payMethod:null,bizDate:new Date().toString(),bizPoInDetails:{id:null},sysStore:{id:null},sysTrader:{id:null},handler:"",remark:null,isDelete:0,version:0,topCompanyCode:null},
         rules: {
          
         }
@@ -115,28 +127,27 @@
     },
     created() {
       this.tableHeight = document.documentElement.clientHeight - 385
-      this.operatorType = this.$route.params.operatorType
+      this.poId = this.$route.params.poId
       this.$nextTick(() => {
         this.init()
-
-        get().then(data => {
+        get(this.poId).then(data => {
           this.form = data
-
+          this.data = data  //this.data,来自于crud.js中的定义
         })
-
       })
+    },
+    mounted(){
+
     },
     methods: {
       beforeInit() {
-        this.url = 'api/bizPoIn/test'
-        const operatorType = this.operatorType
-        this.params = { operatorType }
+        this.url = 'api/bizPoIn/get/' + this.poId
+
+        //const poId = this.poId
+        //this.params = { poId }
+
         return true
       }
-
-
-
-
     }
   }
 </script>
