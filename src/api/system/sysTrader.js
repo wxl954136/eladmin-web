@@ -1,5 +1,11 @@
 import request from '@/utils/request'
-
+export function getSysTraders(params) {
+  return request({
+    url: 'api/sysTrader',
+    method: 'get',
+    params
+  })
+}
 export function add(data) {
   return request({
     url: 'api/sysTrader',
@@ -24,4 +30,4 @@ export function edit(data) {
   })
 }
 
-export default { add, edit, del }
+export default { add, edit, del ,getSysTraders}

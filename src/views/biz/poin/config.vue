@@ -14,9 +14,6 @@
 
           </div>
 
-
-
-
             <el-row :gutter="3">
               <el-col :span="6">
                 <el-form-item label="单据编号" prop="bizNo" >
@@ -40,18 +37,31 @@
 
             <el-row :gutter="3">
               <el-col :span="6">
-                <!--
                 <el-form-item label="往来单位" prop="sysTrader.id">
-                  <el-input v-model="form.sysTrader.id" style="width: 180px" />
+                  <el-select v-model="form.sysTrader.id"  filterable  clearable placeholder="请选择"  style="width: 180px">
+                    <el-option
+                      v-for="item in tradersData"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id"
+                    >
+                    </el-option>
+                  </el-select>
                 </el-form-item>
-                -->
               </el-col>
               <el-col :span="6">
-                <!--
                 <el-form-item label="入库仓位" prop="sysStore.id">
-                  <el-input v-model="form.sysStore.id" style="width: 180px" />
+                  <el-select v-model="form.sysStore.id"  filterable  clearable placeholder="请选择"  style="width: 180px">
+                    <el-option
+                      v-for="item in storesData"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id"
+                    >
+                    </el-option>
+                  </el-select>
                 </el-form-item>
-                -->
+
               </el-col>
               <el-col :span="6">
                 <el-form-item label="付款方式" prop="payMethod">
@@ -85,19 +95,53 @@
           <div slot="header" class="clearfix">
             <span class="role-span">商品信息：</span>
             <el-button-group style = "float:right">
-              <el-button type="primary" size="mini" icon="el-icon-plus">增加行</el-button>
-              <el-button type="primary" size="mini">删除行<i class="el-icon-arrow-right el-icon-minus "></i></el-button>
+              <el-button type="primary" size="mini" icon="el-icon-plus" @click.prevent="handleTableAdd()">增加行</el-button>
+              <el-button type="primary" size="mini" @click.prevent="handleTableDel()">删除行<i class="el-icon-arrow-right el-icon-minus "></i></el-button>
             </el-button-group>
           </div>
           <el-table  v-loading="loading"
                      element-loading-text="正在努力加载，请稍候"
                      element-loading-spinner="el-icon-loading"
-                     :data="data"  :max-height="tableHeight" size="small" style="width: 100%;margin-bottom: 15px">
-            <el-table-column prop="qty" label="数量">
-            </el-table-column>
-            <el-table-column prop="price" label="单价">
+                     ref="table"
+                     :data="data"
+                     :max-height="tableHeight" size="small"
+                     @selection-change='selectRow'
+                     style="width: 100%;margin-bottom: 15px">
+            <el-table-column type="selection" width="45" align="center"></el-table-column>
+            <el-table-column label="序号"  type="index" width="60" align="center"></el-table-column>
+            <el-table-column prop="sysSku.fullName" label="商品名称" width="250">
               <template slot-scope="scope">
-              <el-input v-model="data[scope.$index].price" size="mini" class="edit-input" />
+                <!--  编辑时商品不可以更改,仅可以删除  -->
+                <el-input   v-bind:disabled="data[scope.$index].sysSku.id <=0 "   v-model="data[scope.$index].sysSku.fullName" size="mini" class="edit-input" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="qty" label="数量" width="90">
+              <template slot-scope="scope">
+                <el-input v-model="data[scope.$index].qty"  size="mini" class="edit-input" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="price" label="单价" width="90">
+              <template slot-scope="scope">
+                <el-input v-model="data[scope.$index].price"  size="mini" class="edit-input" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="rate" label="税率" width="90">
+              <template slot-scope="scope">
+                <el-input v-model="data[scope.$index].rate"  size="mini" class="edit-input" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="price" label="备注">
+              <template slot-scope="scope">
+                <el-input v-model="data[scope.$index].remark" size="mini" class="edit-input" />
+              </template>
+            </el-table-column>
+            <el-table-column label="串码详情" width="90" align = "center">
+              <template slot-scope="scope">
+                <div v-if = scope.row.sysSku.costFlag>
+                  <router-link :to="'/po/poin/config/' + 'add'">
+                    <i class="el-icon-folder-add el-icon--right"></i>详情
+                  </router-link>
+                </div>
               </template>
             </el-table-column>
 
@@ -112,6 +156,8 @@
 <script>
   import crud from '@/mixins/crud'
   import {  get } from '@/api/biz/bizPoInConfig'
+  import { getSysTraders } from '@/api/system/sysTrader'
+  import { getStores } from '@/api/system/store'
 
   export default {
     name: 'BizPoInConfig',
@@ -119,7 +165,8 @@
     mixins: [crud],
     data() {
       return {
-        poId: '', tableHeight: 550, columnLoading: false,  dicts: [], syncLoading: false, genLoading: false,
+        poId: '', tableHeight: 550, columnLoading: false,  tradersData: [], storesData:[],
+        selectDetailRows: [],
         form: { id: null, bizNo:'',payMethod:null,bizDate:new Date().toString(),bizPoInDetails:{id:null},sysStore:{id:null},sysTrader:{id:null},handler:"",remark:null,isDelete:0,version:0,topCompanyCode:null},
         rules: {
          
@@ -129,21 +176,74 @@
     created() {
       this.tableHeight = document.documentElement.clientHeight - 385
       this.poId = this.$route.params.poId
+      this.getSysTradersInfo()
+      this.getStoresInfo()
       get(this.poId).then(data => {
         this.form = data
         this.data = data.bizPoInDetails  //this.data,来自于crud.js中的定义
+        this.loading = false
       })
+
 
     },
     mounted(){
+      //一定要加此判断 ，否则table加载数据时，不停的加载
+      if (parseInt(this.poId) === -1){
+        //this.handleTableAdd()
+        this.loading = false
+
+      }
 
 
     },
     methods: {
+      getSysTradersInfo() {
+        getSysTraders({ salerFlag: true }).then(res => {
+          this.tradersData = res.content
+        })
+      },
+      getStoresInfo() {
+        getStores({ enabled: true }).then(res => {
+          this.storesData = res.content
+        })
+      },
+      selectRow (val) {
+        this.selectDetailRows = val
+      },
+      // 删除选中行
+      handleTableDel () {
+        for (let i = 0; i < this.selectDetailRows.length; i++) {
+          let val = this.selectDetailRows
+          val.forEach((val, index) => {  //选中的数据集合
+            this.data.forEach((v, i) => {   //所有明细集合
+              if (val.id === v.id) {
+                this.data.splice(i, 1)  //1表示删除一整个个对象
+              }
+            })
+          })
+        }
+        // 删除完数据之后清除勾选框
+       this.$refs.data.clearSelection()
+      },
 
-
-
-
+      //https://blog.csdn.net/luzhaopan/article/details/81347881  增加删除行的方法
+      handleTableAdd(){
+        var list = {
+          id: -1,
+          headId:  null　,
+          sysSku:{
+            id: -1,
+            fullName: "",
+            costFlag: true
+          },
+          qty:1,
+          price:0,
+          rate:0,
+          remark:null,
+          isDelete:false
+        }
+        this.data.unshift(list)
+      }
     }
   }
 </script>
