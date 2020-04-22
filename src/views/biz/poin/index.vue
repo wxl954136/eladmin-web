@@ -183,6 +183,10 @@
           edit: ['admin', 'bizPoIn:edit'],
           del: ['admin', 'bizPoIn:del']
         },
+        enabledTypeOptions: [
+          { key: 'true', display_name: '正常' },
+          { key: 'false', display_name: '禁用' }
+        ],
         rules: {
           remark: [
             { required: true, message: '备注不能为空', trigger: 'blur' }
