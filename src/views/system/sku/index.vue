@@ -338,7 +338,7 @@
           name: [
             { required: true, message: '请输入商品名称', trigger: 'blur' }
           ],
-          sysSkuClassify: { required: true, message: '商品分类不能为空', trigger: 'select' }
+          sysSkuClassify: { required: true, message: '商品分类不能为空', trigger: 'blur' }
 
         }
       }
