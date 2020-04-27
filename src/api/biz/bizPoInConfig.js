@@ -1,9 +1,15 @@
 import request from '@/utils/request'
-import {add, del} from "./bizPoIn";
 export function get(poId) {
   return request({
     url: 'api/bizPoIn/get/' + poId ,
     method: 'get'
+  })
+}
+export function add(data) {
+  return request({
+    url: 'api/bizPoIn',
+    method: 'post',
+    data
   })
 }
 export function update(data) {
@@ -13,4 +19,4 @@ export function update(data) {
     data
   })
 }
-export default { get, update }
+export default { get, add,update }

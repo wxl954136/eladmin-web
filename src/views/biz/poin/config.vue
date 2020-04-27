@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" >
     <el-row :gutter="15">
       <el-form ref="form" :model="form" :rules="rules" size="small" label-width="78px">
       <el-col>
@@ -8,7 +8,6 @@
             <!--
             <span class="role-span">订单信息</span>
             -->
-
 
             <el-button-group style = "float: left">
               <el-button type="primary" size="mini" icon="el-icon-arrow-left">上一页</el-button>
@@ -172,7 +171,7 @@
 
 <script>
   import crud from '@/mixins/crud'
-  import {  get ,update} from '@/api/biz/bizPoInConfig'
+  import {  get ,add , update} from '@/api/biz/bizPoInConfig'
   import { getSysTraders } from '@/api/system/sysTrader'
   import { getStores } from '@/api/system/store'
   import { getSkus } from '@/api/system/sku'
@@ -220,12 +219,12 @@
       this.getStoresInfo()
       this.getSkusInfo()
       this.$nextTick(() => {
-          this.getBizNoteInfo()
+          if (this.poId > 0 ) this.getBizNoteInfo()
       })
     },
     mounted(){
       //一定要加此判断 ，否则table加载数据时，不停的加载
-      if (parseInt(this.poId) === -1){
+      if (parseInt(this.poId) == -1){
         //this.handleTableAdd()
         this.loading = false
       }
@@ -263,7 +262,7 @@
           val.forEach((val, index) => {  //选中的数据集合
             this.data.forEach((v, i) => {   //所有明细集合
               if (val.id === v.id) {
-                this.data.splice(i, 1)  //1表示删除一整个个对象
+                this.data.splice(i, 1)  //1表示删除一整个对象
               }
             })
           })
@@ -271,38 +270,56 @@
         // 删除完数据之后清除勾选框
        this.$refs.data.clearSelection()
       },
-
       //https://blog.csdn.net/luzhaopan/article/details/81347881  增加删除行的方法
       handleTableAdd(){
         var list = {
           id: null,
           headId:  null　,
           sysSku:{
-            id: '',
+            id: null,
             fullName: "",
             costFlag: true
           },
           qty:1,
           price:0,
           rate:0,
-          remark:null,
+          version:0,
+          remark:'',
           isDelete:false
         }
         this.data.unshift(list)
       },
       doSubmit(){
-        this.$refs['form'].validate((valid) => {
-          if (valid) {
-            this.saveLoading=true
-            update(this.form).then(res => {
-              this.getBizNoteInfo()
-              this.notify('保存成功', 'success')
 
-              this.saveLoading=false
-            }).catch(err => {
-              this.saveLoading = false
-              console.log(err.response.data.message)
-            })
+        this.$refs['form'].validate((valid) => {
+
+          if (valid) {
+
+            this.saveLoading=true
+
+            //新增
+            if (this.poId == -1  ||  this.poId == null){
+              this.form.bizPoInDetails = this.data
+              add(this.form).then(res => {
+                this.notify('保存成功', 'success')
+                this.poId = res.id
+                this.getBizNoteInfo()
+                this.saveLoading=false
+              }).catch(err => {
+                this.saveLoading = false
+                console.log(err.response.data.message)
+              })
+            }else {
+              //修改
+              update(this.form).then(res => {
+                this.getBizNoteInfo()
+                this.notify('保存成功', 'success')
+                this.saveLoading=false
+              }).catch(err => {
+                this.saveLoading = false
+                console.log(err.response.data.message)
+              })
+            }
           }
         })
 

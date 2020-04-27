@@ -13,7 +13,7 @@
             </div>
             <div class="icon-item">
               <svg-icon :icon-class="item" class-name="disabled" />
-              <span>{{ item }}</span>
+              <span>{{ item }} </span>
             </div>
           </el-tooltip>
         </div>
