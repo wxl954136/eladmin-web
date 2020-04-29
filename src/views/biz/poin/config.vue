@@ -66,7 +66,16 @@
               </el-col>
               <el-col :span="6">
                 <el-form-item label="付款方式" prop="payMethod">
-                  <el-input v-model="form.payMethod" style="width: 180px" />
+                  <el-select v-model="form.payMethod"  filterable  clearable placeholder="请选择"  style="width: 180px">
+                    <el-option
+                      v-for="item in payMethodData"
+                      :key="item.value"
+                      :label="item.name"
+                      :value="item.value"
+                    >
+                    </el-option>
+                  </el-select>
+
                 </el-form-item>
               </el-col>
             </el-row>
@@ -125,7 +134,6 @@
                 </el-select>
               </template>
             </el-table-column>
-
             <el-table-column  label="数量" width="90">
               <template slot-scope="scope">
                 <el-input v-model="scope.row.qty"  size="mini" class="edit-input" />
@@ -144,24 +152,32 @@
               </template>
             </el-table-column>
 
-
             <el-table-column  label="备注">
               <template slot-scope="scope">
                 <el-input v-model="scope.row.remark" size="mini" class="edit-input" />
               </template>
             </el-table-column>
-
             <el-table-column label="串码详情" width="90" align = "center">
               <template slot-scope="scope">
                 <div v-if = scope.row.sysSku.costFlag>
+                  <a  @click="operatorSerialInfo(scope.row)"><i class="el-icon-folder-add el-icon--right"></i>详情</a>
+
+                  <!--
                   <router-link :to="'/po/poin/config/' + 'add'">
                     <i class="el-icon-folder-add el-icon--right"></i>详情
                   </router-link>
+                  -->
                 </div>
               </template>
             </el-table-column>
 
           </el-table>
+          <!--lukeWang:串号信息Dlg做为公共组件封装引入,注意父子传值方法-->
+          <!--lukeWang:父传子方法:https://blog.csdn.net/qq_34928693/article/details/80539350 -->
+          <serialInfo ref="serialInfo" @fromSerialDlgGetData="parentSupplySon"
+                      v-bind:skuSelectData="skuSelectData"
+                      v-if="serialInfoVisible" :visible.sync="serialInfoVisible">
+          </serialInfo>
         </el-card>
       </el-col>
       </el-form>
@@ -175,20 +191,30 @@
   import { getSysTraders } from '@/api/system/sysTrader'
   import { getStores } from '@/api/system/store'
   import { getSkus } from '@/api/system/sku'
+  import { getSysConst } from '@/api/system/sysConst'
+
+  import SerialInfo from '@/components/Serial'
 
   export default {
     name: 'BizPoInConfig',
-    components: {},
+    components: {
+      'SerialInfo':SerialInfo  //串号信息做为一个公共组件
+    },
     mixins: [crud],
     data() {
       return {
+        payMethodData:[{value:1,name:"现金"},{value:2,name:"应付款"}],
+        serialInfoVisible:false,
         poId: '',
         tableHeight: 450,
         saveLoading: false,
         tradersData: [],
+       // sysConstData:[],
         storesData:[],
         selectDetailRows:[],
         skuDatas:[],
+        skuSelectData:[],
+
         form: {
           id: null,
           bizNo:'',
@@ -211,18 +237,23 @@
         }
       }
     },
+    beforeCreate(){
 
+    },
     created() {
       this.tableHeight = document.documentElement.clientHeight - 385
       this.poId = this.$route.params.poId
       this.getSysTradersInfo()
+     // this.getSysConstInfo()
       this.getStoresInfo()
       this.getSkusInfo()
       this.$nextTick(() => {
           if (this.poId > 0 ) this.getBizNoteInfo()
       })
     },
+
     mounted(){
+
       //一定要加此判断 ，否则table加载数据时，不停的加载
       if (parseInt(this.poId) == -1){
         //this.handleTableAdd()
@@ -235,6 +266,11 @@
           this.form = data
           this.data = this.form.bizPoInDetails  //this.data,来自于crud.js中的定义
           this.loading = false
+        })
+      },
+      getSysConstInfo(){
+        getSysConst({type:"PAYABLE"}).then(res => {
+          this.sysConstData = res;
         })
       },
       getSysTradersInfo() {
@@ -252,7 +288,15 @@
           this.skuDatas = res.content
         })
       },
-      selectRow (val) {
+      operatorSerialInfo(obj){
+      // alert("c---" + obj.sysSku.fullName)
+        console.log("取行传值方法范本：" + obj.sysSku.fullName)
+        this.serialInfoVisible = true
+        this.skuSelectData = obj
+        //this.$refs.serialInfo.skuFullName = obj.sysSku.fullName
+
+      },
+     selectRow (val) {
         this.selectDetailRows = val
       },
       // 删除选中行
@@ -270,7 +314,6 @@
         // 删除完数据之后清除勾选框
        this.$refs.data.clearSelection()
       },
-      //https://blog.csdn.net/luzhaopan/article/details/81347881  增加删除行的方法
       handleTableAdd(){
         var list = {
           id: null,
@@ -290,13 +333,9 @@
         this.data.unshift(list)
       },
       doSubmit(){
-
         this.$refs['form'].validate((valid) => {
-
           if (valid) {
-
             this.saveLoading=true
-
             //新增
             if (this.poId == -1  ||  this.poId == null){
               this.form.bizPoInDetails = this.data
@@ -322,7 +361,10 @@
             }
           }
         })
-
+      },
+      parentSupplySon(param1,param2,param3){
+        console.log("子组件调用父组件开辟指明Method")
+        alert("1--父组件里的方法---:" + param1 + "&&&:" + param2 + "   " + param3)
       }
     }
   }
