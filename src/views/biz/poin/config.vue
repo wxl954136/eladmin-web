@@ -1,7 +1,7 @@
 <template>
   <div class="app-container" >
     <el-row :gutter="15">
-      <el-form ref="form" :model="form" :rules="rules" size="small" label-width="78px">
+      <el-form ref="form" :model="form" :rules="rules" size="small" label-width="78px" v-enterToNext="true">
       <el-col>
         <el-card class="box-card" shadow="hover">
           <div slot="header" class="clearfix" >
@@ -116,6 +116,7 @@
                      element-loading-text="正在努力加载，请稍候"
                      element-loading-spinner="el-icon-loading"
                      :data="data"
+                     ref = "data"
                      :max-height="tableHeight" size="small"
                      @selection-change='selectRow'
                      style="width: 100%;margin-bottom: 15px">
@@ -301,15 +302,22 @@
       },
       // 删除选中行
       handleTableDel () {
+
+        /*
         for (let i = 0; i < this.selectDetailRows.length; i++) {
           let val = this.selectDetailRows
           val.forEach((val, index) => {  //选中的数据集合
             this.data.forEach((v, i) => {   //所有明细集合
+
               if (val.id === v.id) {
                 this.data.splice(i, 1)  //1表示删除一整个对象
               }
             })
           })
+        }
+         */
+        for (var i = this.$refs.data.selection.length - 1; i >= 0; i--) {
+          this.data.splice(this.$refs.data.selection[i].index - 1, 1)
         }
         // 删除完数据之后清除勾选框
        this.$refs.data.clearSelection()

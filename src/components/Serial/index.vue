@@ -19,12 +19,16 @@
               <el-collapse-item title="串号规则设定:"  >
                   <template slot="title">
                     <el-badge :value="最多允许3个串号" class="item">
-                      <el-button size="small" type="primary" round>串号规则设定<i class="el-icon-setting el-icon--right"></i></el-button>
+                      <el-button size="small" type="primary" style = "width:164px;" >串号规则设定<i class="el-icon-setting el-icon--right"></i></el-button>
                     </el-badge>
                   </template>
-                  <el-table   :data="serialRuleData" :show-header="false"
+                  <el-table   :data="serialRuleData"
+                              :show-header="false"
+                              :cell-style="{padding:'3px'}"
                               align="center"
                               class = "tableNoneBrder"
+                              ref = "serialRule"
+
                               style="width: 100%;border-bottom: 0px solid">
                     <el-table-column   type="index" width="60" align="center">
                       <template slot-scope="scope">
@@ -32,53 +36,66 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column  prop="rule"   width="260">
+                    <el-table-column  prop="rule"   width = "260" >
                       <template slot-scope="scope">
                            <el-input v-model="scope.row.rule" size="mini" class="edit-input"  />
                       </template>
                     </el-table-column>
-
-                    <el-table-column  prop="rule"   width="100">
+                    <!--
+                    <el-table-column  prop="rule"   width="50">
                       <template slot-scope="scope">
                         <el-switch
                           v-model="scope.row.enabled"
                           active-color="#409EFF"
                           inactive-color="#F56C6C"
                         />
-                        <!--  @change="changeEnabled(scope.row, scope.row.enabled)" -->
-
                       </template>
                     </el-table-column>
-
-                    <el-table-column >
+                    -->
+                    <el-table-column  width = "120" >
                       <template slot-scope="scope">
-                        <el-button type="primary" size = "mini" icon="el-icon-document-add" circle></el-button>
+                        <el-button type="primary" size = "mini" icon="el-icon-document-add" circle  @click.prevent = "handleTableRuleAdd"></el-button>
                           <!-- @click="handleEdit(scope.$index, scope.row)">编辑</el-button> -->
-                        <el-button type="danger" size = "mini" icon="el-icon-delete" circle></el-button>
+                        <el-button type="danger" size = "mini" icon="el-icon-delete" circle @click.prevent = "handleTableRuleDel(scope.$index)"></el-button>
                       </template>
                     </el-table-column>
                   </el-table>
               </el-collapse-item>
             </el-collapse>
+            <el-button-group style = "float:left">
+              <el-button type="primary" size="mini" icon="el-icon-plus" @click.prevent="handleTableSerialAdd()" >增加行</el-button>
+              <el-button type="primary" size="mini"  @click.prevent="handleTableSerailDel()" >删除行<i class="el-icon-arrow-right el-icon-minus "></i></el-button>
+            </el-button-group>
 
-            <el-table  :data="serialData"  style="width: 100%" max-height="250">
-              <el-table-column label="ID"  type="index" width="60" align="center">
+            <el-table  :data="serialData"  style="width: 100%" max-height="250"
+                       @selection-change='selectRow'
+                       ref="serialInput"
+                       :cell-style="{padding:'1px'}" class = "serialTableCellStyle">
+              <el-table-column   type="selection" width="30" />
+              <el-table-column label="ID"  type="index" width="40" align="center">
                 <template slot-scope="scope">
                   {{scope.$index + 1}}
                 </template>
               </el-table-column>
-              <el-table-column  prop="serial01" label="串号(1)"   width="150">  </el-table-column>
-              <el-table-column  prop="serial02" label="串号(2)"   width="150">  </el-table-column>
-              <el-table-column  prop="serial03" label="串号(3)"   width="150">  </el-table-column>
+              <el-table-column  prop="serial01" label="串号(1)"     >
+                <template slot-scope="scope">
+                   <el-input v-model="scope.row.serial01"  size="mini"  placeholder="请按照规则录入" class="edit-input"  />
+                </template>
+              </el-table-column>
+              <el-table-column  v-if="this.serialNum >=2" prop="serial02" label="串号(2)"    >
+                <template slot-scope="scope">
+                    <!--    https://www.bbsmax.com/A/gAJGmAmbdZ/  回车事件范例  -->
+                  <el-input v-model="scope.row.serial02"  size="mini" class="edit-input" >
+                  </el-input>
+                </template>
+              </el-table-column>
+              <el-table-column   v-if="this.serialNum >=3" prop="serial03" label="串号(3)"   >
+                <template slot-scope="scope">
+                     <el-input v-model="scope.row.serial03"  size="mini" class="edit-input" />
+                </template>
+              </el-table-column>
             </el-table>
-<!--
-            <el-input placeholder="请输入内容" v-model="serialNum" type="text" onkeyup="this.value=this.value.replace(/[^123]/g,'');" maxlength="1"  class = "number_input" style = "width:150px;">
-              <template slot="prepend">串号个数:</template>
-            </el-input>
-            <el-input placeholder="请输入内容" v-model="serialLength" @blur = "inputQtyBlur" type="text" maxlength="2"  onkeyup="this.value=this.value.replace(/[^\d.]/g,'');"   class = "number_input" style = "width:150px;">
-              <template slot="prepend">串号长度:</template>
-            </el-input>
--->
+
           </el-card>
         </el-col>
 
@@ -93,11 +110,17 @@
 
 </template>
 
+
+
+
+
+
 <script>
   export default {
     name:"serialInfo-son-compnent",
     data() {
       return {
+
         serialNum:1,
         serialLength:15,
         serialChecked:false,
@@ -107,20 +130,10 @@
         serialRuleData: [{
           rule: '15',
           enabled:true
-        },{
-          rule: '15',
-          enabled:true
-        },{
-          rule: '15',
-          enabled:true
         }
         ],
-        serialData: [{
-          serial01: '11111',
-          serial02: '2222',
-          serial03: '333'
-        }]
-
+        serialSelectData:[],
+        serialData: []
       }
     },
     props: {
@@ -137,7 +150,6 @@
       handleCancel(){
         this.visible = false
         this.modalClose()
-        //this.$emit('update:visible', false)
       },
       handleConfirm(){
         console.log("lukeWang:子向父传数据,在父中间使用@fromSerialDlgGetData标识")
@@ -148,6 +160,44 @@
       modalClose() {
         //表示更新update:父件的visible属性
         this.$emit('update:visible', false); // 直接修改父组件的visible属性
+      },
+      selectRow (val) {
+        this.serialSelectData = val
+      },
+      handleTableSerialAdd(){
+        var list = {
+          id: null,
+          serial01:'',
+          serial02:'',
+          serial03:''
+        }
+        //this.serialData.unshift(list)
+        this.serialData.push(list)
+        this.$nextTick(() => {
+            this.$refs.serialInput.bodyWrapper.scrollTop = this.$refs.serialInput.bodyWrapper.scrollHeight;
+        })
+      },
+      //https://www.cnblogs.com/lhl66/p/10212624.html  删除选择数据的好方法
+      handleTableSerailDel () {
+        for (var i = this.$refs.serialInput.selection.length - 1; i >= 0; i--) {
+          this.serialData.splice(this.$refs.serialInput.selection[i].index - 1, 1)
+        }
+        this.$refs.serialInput.clearSelection()
+      },
+      handleTableRuleAdd(){
+        var list = {
+          rule: '15',
+          enabled:true
+        }
+        if (this.serialRuleData.length >=3)  return
+        this.serialRuleData.push(list)
+        this.serialNum = this.serialRuleData.length
+
+      },
+      handleTableRuleDel(index){
+        if (this.serialRuleData.length <=1)  return
+        this.serialRuleData.splice(index, 1);
+        this.serialNum = this.serialRuleData.length
       },
       inputQtyBlur(){
           if (this.serialLength > 30 )
@@ -173,7 +223,17 @@
     padding-right: 10px;
     text-align: right;
   }
-
+   .el-table .cell {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-all;
+    line-height: 23px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
   .el-collapse-item__content {
     padding-bottom: 0px;
     font-size: 13px;
