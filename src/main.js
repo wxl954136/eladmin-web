@@ -29,8 +29,10 @@ import router from './router/routers'
 import './assets/icons' // icon
 import './router/index' // permission control
 
+
 Vue.use(VueHighlightJS)
 Vue.use(mavonEditor)
+
 Vue.use(permission)
 Vue.use(dict)
 Vue.use(Element, {
@@ -79,3 +81,13 @@ new Vue({
   render: h => h(App)
 })
 
+
+
+/*
+生成uuid方法
+https://www.cloudhadoop.com/2018/10/vuejs-generate-unique-identifier-uuid.html?m=1
+1.npm install --save vue-uuid
+2.main.js中引入 import UUID from 'vue-uuid'
+  Vue.use(UUID);
+
+ */

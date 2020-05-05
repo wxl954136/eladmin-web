@@ -94,11 +94,11 @@
             <el-table-column label = "税率(%)" prop="rate" width="90" align="right"></el-table-column>
             <el-table-column label = "总额(含税)"  width="90" align="right">
               <template slot-scope="scope">
-                <div v-if="scope.row.rate === 0">
+                <div v-if="scope.row.rate == 0">
                   <div><i class="el-icon-money"></i> {{ parseFloat(scope.row.qty  * scope.row.price).toFixed(AMOUNTDIGIT)}} </div>
                 </div>
                 <div v-else>
-                  <div><i class="el-icon-money"></i>{{ parseFloat(scope.row.qty * scope.row.rate * scope.row.price).toFixed(AMOUNTDIGIT)}} </div>
+                  <div><i class="el-icon-money"></i>{{ parseFloat(scope.row.qty  * scope.row.price - scope.row.qty * scope.row.price* scope.row.rate /100).toFixed(AMOUNTDIGIT)}} </div>
                 </div>
               </template>
             </el-table-column>

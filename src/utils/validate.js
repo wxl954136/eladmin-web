@@ -166,3 +166,16 @@ export function validateIdNo(rule, value, callback) {
   }
 }
 
+/*整个系统验证单价是否符合*/
+export function validatePrice(rule, value, callback) {
+
+  let reg = /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g;  //正负数及小数
+  setTimeout(() => {
+    if (!reg.test(value)) {
+      callback(new Error('请输入数字'))
+    }
+    if (value < rule.min) {
+      callback(new Error('单价大于:' + rule.min))
+    }
+  }, 1000);
+}

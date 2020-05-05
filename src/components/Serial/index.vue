@@ -2,7 +2,6 @@
 
   <el-dialog
     title="串号信息"
-    v-loading="loading"
     :visible.sync="visible"
     width="600px"
     :before-close="modalClose"
@@ -12,21 +11,19 @@
       <el-row :gutter="15">
         <el-col>
           <el-card class="box-card" shadow="hover" style = "margin-top: -30px;">
-            <el-input placeholder="请输入内容" v-model="skuSelectData.sysSku.fullName" :disabled="true" style = "width:513px"  >
+            <el-input placeholder="请输入内容" v-model="skuSelectData.sysSku.fullName + skuSelectData.keywords" :disabled="true" style = "width:513px"  >
               <template slot="prepend">商品名称:</template>
             </el-input>
             <el-collapse  style = "border-top: 0px;border-bottom: 0px">
               <el-collapse-item title="串号规则设定:"  >
                   <template slot="title">
-                    <el-badge :value="最多允许3个串号" class="item">
                       <el-button size="small" type="primary" style = "width:164px;" >串号规则设定<i class="el-icon-setting el-icon--right"></i></el-button>
-                    </el-badge>
                   </template>
                   <el-table   :data="serialRuleData"
                               :show-header="false"
                               :cell-style="{padding:'3px'}"
                               align="center"
-                              class = "tableNoneBrder"
+                              class = "tableNoneBorder"
                               ref = "serialRule"
 
                               style="width: 100%;border-bottom: 0px solid">
@@ -41,17 +38,7 @@
                            <el-input v-model="scope.row.rule" size="mini" class="edit-input"  />
                       </template>
                     </el-table-column>
-                    <!--
-                    <el-table-column  prop="rule"   width="50">
-                      <template slot-scope="scope">
-                        <el-switch
-                          v-model="scope.row.enabled"
-                          active-color="#409EFF"
-                          inactive-color="#F56C6C"
-                        />
-                      </template>
-                    </el-table-column>
-                    -->
+
                     <el-table-column  width = "120" >
                       <template slot-scope="scope">
                         <el-button type="primary" size = "mini" icon="el-icon-document-add" circle  @click.prevent = "handleTableRuleAdd"></el-button>
@@ -67,35 +54,47 @@
               <el-button type="primary" size="mini"  @click.prevent="handleTableSerailDel()" >删除行<i class="el-icon-arrow-right el-icon-minus "></i></el-button>
             </el-button-group>
 
-            <el-table  :data="serialData"  style="width: 100%" max-height="250"
-                       @selection-change='selectRow'
-                       ref="serialInput"
-                       :cell-style="{padding:'1px'}" class = "serialTableCellStyle">
-              <el-table-column   type="selection" width="30" />
-              <el-table-column label="ID"  type="index" width="40" align="center">
-                <template slot-scope="scope">
-                  {{scope.$index + 1}}
-                </template>
-              </el-table-column>
-              <el-table-column  prop="serial01" label="串号(1)"     >
-                <template slot-scope="scope">
-                   <el-input v-model="scope.row.serial01"  size="mini"  placeholder="请按照规则录入" class="edit-input"  />
-                </template>
-              </el-table-column>
-              <el-table-column  v-if="this.serialNum >=2" prop="serial02" label="串号(2)"    >
-                <template slot-scope="scope">
-                    <!--    https://www.bbsmax.com/A/gAJGmAmbdZ/  回车事件范例  -->
-                  <el-input v-model="scope.row.serial02"  size="mini" class="edit-input" >
-                  </el-input>
-                </template>
-              </el-table-column>
-              <el-table-column   v-if="this.serialNum >=3" prop="serial03" label="串号(3)"   >
-                <template slot-scope="scope">
-                     <el-input v-model="scope.row.serial03"  size="mini" class="edit-input" />
-                </template>
-              </el-table-column>
-            </el-table>
+            <el-form :model="serialForm"  ref="serialForm"  :rules="serialForm.paramsRules" >
+              <!--    :cell-style="{padding:'1px'}"  -->
+                <el-table  :data="serialForm.params"  style="width: 100%" max-height="250"
+                           @selection-change='selectRow'
+                           ref="serialInput"
+                           :cell-style="{padding:'1px'}"
+                           class = "tableNoneBorder"
+                          >
+                  <el-table-column  type="selection"  :reserver-selection="true" width="35"   >
 
+                  </el-table-column>
+                  <el-table-column label="ID"  type="index" width="40" align="center">
+                    <template slot-scope="scope">
+                      <el-form-item>
+                        {{scope.$index + 1}}
+                      </el-form-item>
+                    </template>
+                  </el-table-column>
+                  <el-table-column   label="串号(1)"    >
+                    <template slot-scope="scope">
+                      <el-form-item  :prop="'params.' + scope.$index + '.serial01'"  :rules="serialForm.paramsRules.serial01">
+                          <el-input v-model="scope.row.serial01"   size="small"  placeholder="请按照规则录入" class="edit-input"  />
+                      </el-form-item>
+                    </template>
+                  </el-table-column>
+                  <el-table-column  v-if="this.serialNum >=2"  label="串号(2)"    >
+                    <template slot-scope="scope">
+                      <el-form-item  :prop="'params.' + scope.$index + '.serial02'"  :rules="serialForm.paramsRules.serial02">
+                           <el-input v-model="scope.row.serial02"  size="mini" class="edit-input"  />
+                      </el-form-item>
+                    </template>
+                  </el-table-column>
+                  <el-table-column   v-if="this.serialNum >=3"  label="串号(3)"   >
+                    <template slot-scope="scope">
+                      <el-form-item  :prop="'params.' + scope.$index + '.serial03'"  :rules="serialForm.paramsRules.serial03">
+                          <el-input v-model="scope.row.serial03"  size="small" class="edit-input" />
+                      </el-form-item>
+                    </template>
+                  </el-table-column>
+                </el-table>
+            </el-form>
           </el-card>
         </el-col>
 
@@ -110,32 +109,36 @@
 
 </template>
 
-
-
-
-
-
 <script>
+  const paramesTemplate = {
+    id: null,
+    serial01: '',
+    serial02: '',
+    serial03: ''
+  }
   export default {
-    name:"serialInfo-son-compnent",
+    name:"serialInfo-son-component",
     data() {
       return {
-
         serialNum:1,
         serialLength:15,
-        serialChecked:false,
-        rules:[
-
-        ],
         serialRuleData: [{
           rule: '15',
           enabled:true
-        }
-        ],
+        }],
         serialSelectData:[],
-        serialData: []
+        serialForm:{
+          //params: [ ], //Object.assign({},paramesTemplate)
+          params: this.skuSelectData.bizTradeSerialFlow, //Object.assign({},paramesTemplate)
+          paramsRules: {
+            serial01: [{required: true, message: '请输入串号1', trigger: 'blur'}],
+            serial02: [{required: true, message: '请输入串号2', trigger: 'blur'}],
+            serial03: [{required: true, message: '请输入串号3', trigger: 'blur'}]
+          }
+        }
       }
     },
+
     props: {
       skuSelectData:{
          type:Object,
@@ -146,6 +149,7 @@
         default: false
       }
     },
+
     methods: {
       handleCancel(){
         this.visible = false
@@ -153,7 +157,7 @@
       },
       handleConfirm(){
         console.log("lukeWang:子向父传数据,在父中间使用@fromSerialDlgGetData标识")
-        this.$emit('fromSerialDlgGetData',"参数1","参数n",true)
+        this.$emit('fromSerialDlgGetData',this.serialForm.params,this.serialRuleData,true)
         this.visible = false
         this.modalClose()
       },
@@ -163,16 +167,11 @@
       },
       selectRow (val) {
         this.serialSelectData = val
+
       },
       handleTableSerialAdd(){
-        var list = {
-          id: null,
-          serial01:'',
-          serial02:'',
-          serial03:''
-        }
-        //this.serialData.unshift(list)
-        this.serialData.push(list)
+        let data = Object.assign({},paramesTemplate) ; //复制并新建一个对象
+        this.serialForm.params.push(data)
         this.$nextTick(() => {
             this.$refs.serialInput.bodyWrapper.scrollTop = this.$refs.serialInput.bodyWrapper.scrollHeight;
         })
@@ -180,7 +179,7 @@
       //https://www.cnblogs.com/lhl66/p/10212624.html  删除选择数据的好方法
       handleTableSerailDel () {
         for (var i = this.$refs.serialInput.selection.length - 1; i >= 0; i--) {
-          this.serialData.splice(this.$refs.serialInput.selection[i].index - 1, 1)
+          this.serialForm.params.splice(this.$refs.serialInput.selection[i].index - 1, 1)
         }
         this.$refs.serialInput.clearSelection()
       },
@@ -192,7 +191,6 @@
         if (this.serialRuleData.length >=3)  return
         this.serialRuleData.push(list)
         this.serialNum = this.serialRuleData.length
-
       },
       handleTableRuleDel(index){
         if (this.serialRuleData.length <=1)  return
@@ -223,6 +221,16 @@
     padding-right: 10px;
     text-align: right;
   }
+  //调整checkBox布局，尽量协调
+  /*
+  .el-table th, .el-table td{
+    vertical-align: text-top; //控制第一栏checkbox
+  }
+  .el-checkbox__inner{
+    margin: 8px;
+  }
+
+   */
    .el-table .cell {
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
@@ -234,22 +242,25 @@
     padding-left: 5px;
     padding-right: 5px;
   }
+
+
   .el-collapse-item__content {
     padding-bottom: 0px;
     font-size: 13px;
     line-height: 0;
   }
 
-  .tableNoneBrder .el-table__row>td{
+  .tableNoneBorder .el-table__row>td{
     border: none;
   }
-  .tableNoneBrder .el-table::before {//去掉最下面的那一条线
+  .tableNoneBorder .el-table::before {//去掉最下面的那一条线
     height: 0px;
   }
-  .item {
-    margin-top: 10px;
-    margin-right: 40px;
-  }
+
+
+
+
+
 </style>
 <style scoped>
 
