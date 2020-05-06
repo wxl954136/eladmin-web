@@ -168,14 +168,19 @@ export function validateIdNo(rule, value, callback) {
 
 /*整个系统验证单价是否符合*/
 export function validatePrice(rule, value, callback) {
-
+  //切记，自定validate，任何时候必须回调callback,否则validate失效
   let reg = /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g;  //正负数及小数
   setTimeout(() => {
     if (!reg.test(value)) {
       callback(new Error('请输入数字'))
+    }else {
+      callback()
     }
     if (value < rule.min) {
       callback(new Error('单价大于:' + rule.min))
+    }else
+    {
+      callback()
     }
   }, 1000);
 }

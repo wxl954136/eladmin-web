@@ -147,46 +147,50 @@
                   </el-form-item>
                 </template>
               </el-table-column>
-              <el-table-column  label="数量"   width = "80">
+
+              <el-table-column  label="数量"   width = "80" align="right">
                 <template slot-scope="scope">
                   <el-form-item  :prop="'bizPoInDetails.' + scope.$index + '.qty'" :rules="rules.qty" >
-                     <el-input v-model="scope.row.qty"  size="mini" class="edit-input" />
+                     <el-input v-model="scope.row.qty"  size="mini" class="number-input" />
                   </el-form-item>
                 </template>
               </el-table-column>
 
-              <el-table-column prop="price" label="单价"  width = "80" >
+              <el-table-column prop="price" label="单价" width="80" align="right">
                 <template slot-scope="scope">
-                  <el-form-item  :prop="'bizPoInDetails.' + scope.$index + '.price'" :rules="rules.price" >
-                    <el-input v-model="scope.row.price"  size="mini" class="edit-input" />
+                  <el-form-item :prop="'bizPoInDetails.' + scope.$index + '.price'" :rules="rules.price">
+                    <el-input v-model="scope.row.price" size="mini" class="number-input"/>
                   </el-form-item>
                 </template>
               </el-table-column>
-              <el-table-column  label="总额"   width = "100">
+
+              <el-table-column label="总额" width="100" align="right">
                 <template slot-scope="scope">
                   <el-form-item>
-                    <i class="el-icon-money"></i>{{ parseFloat(scope.row.qty  * scope.row.price).toFixed(AMOUNTDIGIT)}}
+                    <i class="el-icon-money"></i>{{ parseFloat(scope.row.qty * scope.row.price).toFixed(AMOUNTDIGIT)}}
                   </el-form-item>
                 </template>
               </el-table-column>
-              <el-table-column label="税率"  width = "80">
+
+              <el-table-column label="税率" width="80" align="right">
                 <template slot-scope="scope">
-                  <el-form-item  :prop="'bizPoInDetails.' + scope.$index + '.rate'" :rules="rules.rate" >
-                    <el-input v-model="scope.row.rate"  size="mini" class="edit-input" />
+                  <el-form-item :prop="'bizPoInDetails.' + scope.$index + '.rate'" :rules="rules.rate">
+                    <el-input v-model="scope.row.rate" size="mini" class="number-input"/>
                   </el-form-item>
                 </template>
               </el-table-column>
 
-              <el-table-column label="总额(含税)" width="100">
-
+              <el-table-column label="总额(含税)" width="100" align="right">
                 <template slot-scope="scope">
                   <el-form-item>
                     <div v-if="scope.row.rate == 0">
-                      <div><i class="el-icon-money"></i> {{ parseFloat(scope.row.qty *scope.row.price).toFixed(AMOUNTDIGIT)}}
+                      <div><i class="el-icon-money"></i> {{ parseFloat(scope.row.qty
+                        *scope.row.price).toFixed(AMOUNTDIGIT)}}
                       </div>
                     </div>
                     <div v-else>
-                      <div><i class="el-icon-money"></i>{{ parseFloat(scope.row.qty  * scope.row.price - scope.row.qty * scope.row.price* scope.row.rate /100).toFixed(AMOUNTDIGIT)}}
+                      <div><i class="el-icon-money"></i>{{ parseFloat(scope.row.qty * scope.row.price - scope.row.qty *
+                        scope.row.price* scope.row.rate /100).toFixed(AMOUNTDIGIT)}}
                       </div>
                     </div>
                   </el-form-item>
@@ -194,13 +198,14 @@
 
               </el-table-column>
 
-              <el-table-column  label="备注" width = "200">
+              <el-table-column label="备注" width="200">
                 <template slot-scope="scope">
-                  <el-form-item  :prop="'bizPoInDetails.' + scope.$index + '.remark'" >
-                    <el-input v-model="scope.row.remark" size="mini" class="edit-input" />
+                  <el-form-item :prop="'bizPoInDetails.' + scope.$index + '.remark'">
+                    <el-input v-model="scope.row.remark" size="mini"/>
                   </el-form-item>
                 </template>
               </el-table-column>
+
               <el-table-column label="串码详情" align = "center">
                 <template slot-scope="scope">
                   <el-form-item>
@@ -310,7 +315,6 @@
         selectDetailRows:[],
         skuDatas:[],
         skuSelectData:null,
-        bizDetailData:[],
         poinForm: poinFormTemplate,
         rules: {
           handler: [
@@ -319,7 +323,7 @@
           sysTrader: { required: true, message: '请选择往来单位', trigger: 'select' },
           price:[
             {required: true,message: '单价必填', trigger: 'blur'},
-            { validator: validatePrice, min:0,trigger: 'change' }
+            { validator: validatePrice, min:0,trigger: 'change' }  //切记，自定validate，任何时候必须回调callback,否则validate失效
             ],
           qty:{required: true, message: '数量必填',trigger: 'blur'},
           rate:{required: true, message: '税率必填',trigger: 'blur'}
@@ -402,14 +406,6 @@
         })
       },
       operatorSerialInfo(obj,index){
-        let paramesTemplate = {
-          id: null,
-          serial01: '1111',
-          serial02: '222',
-          serial03: '333'
-        }
-        //测试一个push
-        obj.bizTradeSerialFlow.push(paramesTemplate)
         if (obj.sysSku.id == null ) return
         let sku = {};
         sku = this.skuDatas.find((item)=>{
@@ -438,8 +434,10 @@
         let data = Object.assign({},bizPoInDetailsTemplate) ; //复制并新建一个对象
         let skuData = Object.assign({},bizPoInDetailsTemplate.sysSku)
         data.sysSku = skuData
-        this.poinForm.bizPoInDetails.unshift(data)
-        //this.poinForm.bizPoInDetails.unshift(list)
+        this.poinForm.bizPoInDetails.push(data)
+        this.$nextTick(() => {
+          this.$refs.poinDetailRef.bodyWrapper.scrollTop = this.$refs.poinDetailRef.bodyWrapper.scrollHeight;
+        })
       },
       doSubmit(){
         this.$refs['formRef'].validate((valid) => {
@@ -472,26 +470,19 @@
       },
       parentCallSonGetSerialInfo(serialData,serialRuleData,param3){
         console.log("子组件调用父组件开辟指明Method")
-        var result = ""
-        for (var index = 0 ; index < serialData.length;index++)
-        {
-          result = result + "----" + serialData[index].serial01 + "----"
-        }
-        for(var index = 0; index < serialRuleData.length;index++)
-        {
-          result = result + "----" + serialRuleData[index].rule + "----"
-        }
+       // alert(serialData.size() + "-----------1")
 
-        alert("1--父组件里的方法---:"  + result + "   " + param3)
+     //   alert("1--父组件里的方法---:"  + result + "   " + param3)
       }
     }
   }
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  .edit-input {
+  .number-input {
     .el-input__inner {
       border: 1px solid #e5e6e7;
+      text-align:right;
     }
   }
 </style>

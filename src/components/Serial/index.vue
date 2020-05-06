@@ -75,21 +75,21 @@
                   <el-table-column   label="串号(1)"    >
                     <template slot-scope="scope">
                       <el-form-item  :prop="'params.' + scope.$index + '.serial01'"  :rules="serialForm.paramsRules.serial01">
-                          <el-input v-model="scope.row.serial01"   size="small"  placeholder="请按照规则录入" class="edit-input"  />
+                          <el-input v-model="scope.row.serial01"   size="small"  placeholder="请按照规则录入" />
                       </el-form-item>
                     </template>
                   </el-table-column>
                   <el-table-column  v-if="this.serialNum >=2"  label="串号(2)"    >
                     <template slot-scope="scope">
                       <el-form-item  :prop="'params.' + scope.$index + '.serial02'"  :rules="serialForm.paramsRules.serial02">
-                           <el-input v-model="scope.row.serial02"  size="mini" class="edit-input"  />
+                           <el-input v-model="scope.row.serial02"  size="mini"   />
                       </el-form-item>
                     </template>
                   </el-table-column>
                   <el-table-column   v-if="this.serialNum >=3"  label="串号(3)"   >
                     <template slot-scope="scope">
                       <el-form-item  :prop="'params.' + scope.$index + '.serial03'"  :rules="serialForm.paramsRules.serial03">
-                          <el-input v-model="scope.row.serial03"  size="small" class="edit-input" />
+                          <el-input v-model="scope.row.serial03"  size="small"  />
                       </el-form-item>
                     </template>
                   </el-table-column>
@@ -110,14 +110,31 @@
 </template>
 
 <script>
+  import {uuid} from 'vue-uuid' // Import uuid
+
   const paramesTemplate = {
     id: null,
+    keywords:'',
+    bizHeadId:null,
+    bizDetailId:null,
+    bizDate :'',
+    bizType:'',
+    traderId:null,
+    storeId:null,
+    skuId:null,
     serial01: '',
     serial02: '',
-    serial03: ''
+    serial03: '',
+    qty:1,
+    price:0,
+    rate:0,
+    isDelete:0,
+    version:0,
+    keywords:null,
+    topCompanyCode:null
   }
   export default {
-    name:"serialInfo-son-component",
+    name:"serialInfo-Son-Component",
     data() {
       return {
         serialNum:1,
@@ -149,21 +166,27 @@
         default: false
       }
     },
+    created(){
+      alert("dlg created----------------")
+      //alert("k1---"  + this.skuSelectData.bizTradeSerialFlow.length)
+     // this.serialForm.params = this.skuSelectData.bizTradeSerialFlow
 
+    },
     methods: {
-      handleCancel(){
+      modalClose(){
         this.visible = false
+        this.$emit('update:visible', false);
+      },
+      handleCancel(){
         this.modalClose()
       },
       handleConfirm(){
         console.log("lukeWang:子向父传数据,在父中间使用@fromSerialDlgGetData标识")
+        alert("son----:"  + this.serialForm.params[0].serial01)
         this.$emit('fromSerialDlgGetData',this.serialForm.params,this.serialRuleData,true)
-        this.visible = false
         this.modalClose()
-      },
-      modalClose() {
         //表示更新update:父件的visible属性
-        this.$emit('update:visible', false); // 直接修改父组件的visible属性
+       // this.$emit('update:visible', false); // 直接修改父组件的visible属性
       },
       selectRow (val) {
         this.serialSelectData = val
@@ -171,17 +194,24 @@
       },
       handleTableSerialAdd(){
         let data = Object.assign({},paramesTemplate) ; //复制并新建一个对象
+        data.keywords = uuid.v1()
         this.serialForm.params.push(data)
         this.$nextTick(() => {
             this.$refs.serialInput.bodyWrapper.scrollTop = this.$refs.serialInput.bodyWrapper.scrollHeight;
         })
       },
-      //https://www.cnblogs.com/lhl66/p/10212624.html  删除选择数据的好方法
       handleTableSerailDel () {
-        for (var i = this.$refs.serialInput.selection.length - 1; i >= 0; i--) {
-          this.serialForm.params.splice(this.$refs.serialInput.selection[i].index - 1, 1)
-        }
+        //如果有更好的方法，获取当前删除行的行索引号，删除速度会更快
+        this.$refs.serialInput.selection.forEach((item) => {
+          for (let i = 0; i < this.serialForm.params.length; i++) {
+            if (this.serialForm.params[i].keywords == item.keywords) {
+              this.serialForm.params.splice(i, 1);
+              break;
+            }
+          }
+        });
         this.$refs.serialInput.clearSelection()
+
       },
       handleTableRuleAdd(){
         var list = {
