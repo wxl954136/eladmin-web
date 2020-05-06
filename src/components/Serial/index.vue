@@ -51,7 +51,7 @@
             </el-collapse>
             <el-button-group style = "float:left">
               <el-button type="primary" size="mini" icon="el-icon-plus" @click.prevent="handleTableSerialAdd()" >增加行</el-button>
-              <el-button type="primary" size="mini"  @click.prevent="handleTableSerailDel()" >删除行<i class="el-icon-arrow-right el-icon-minus "></i></el-button>
+              <el-button type="primary" size="mini"  @click.prevent="handleTableSerialDel()" >删除行<i class="el-icon-arrow-right el-icon-minus "></i></el-button>
             </el-button-group>
 
             <el-form :model="serialForm"  ref="serialForm"  :rules="serialForm.paramsRules" >
@@ -103,7 +103,7 @@
     </div>
     <span slot="footer" class="dialog-footer">
         <el-button @click="handleCancel">取 消</el-button>
-        <el-button type="primary" @click="handleConfirm">确 定</el-button>
+        <el-button :loading="confirmLoading" type="primary" @click="handleConfirm">确 定</el-button>
     </span>
   </el-dialog>
 
@@ -115,8 +115,8 @@
   const paramesTemplate = {
     id: null,
     keywords:'',
-    bizHeadId:null,
-    bizDetailId:null,
+    bizHeadKeywords:null,
+    bizDetailKeywords:null,
     bizDate :'',
     bizType:'',
     traderId:null,
@@ -139,14 +139,15 @@
       return {
         serialNum:1,
         serialLength:15,
+        confirmLoading: false,
         serialRuleData: [{
           rule: '15',
           enabled:true
         }],
+        bakSkuSelectData:{},
         serialSelectData:[],
         serialForm:{
-          //params: [ ], //Object.assign({},paramesTemplate)
-          params: this.skuSelectData.bizTradeSerialFlow, //Object.assign({},paramesTemplate)
+          params: this.skuSelectData.bizTradeSerialFlow,
           paramsRules: {
             serial01: [{required: true, message: '请输入串号1', trigger: 'blur'}],
             serial02: [{required: true, message: '请输入串号2', trigger: 'blur'}],
@@ -167,30 +168,36 @@
       }
     },
     created(){
-      alert("dlg created----------------")
-      //alert("k1---"  + this.skuSelectData.bizTradeSerialFlow.length)
-     // this.serialForm.params = this.skuSelectData.bizTradeSerialFlow
+      console.info("注意，当visible:false时再进来true时，会调用，以visible来控制是否每次都执行created")
+      this.bakSkuSelectData = JSON.parse(JSON.stringify(this.skuSelectData)) //数据深层备份
+
 
     },
     methods: {
       modalClose(){
-        this.visible = false
-        this.$emit('update:visible', false);
+        //如果没有点击确定[点如X及取消按钮时]，则还原进来时的数据，即修改无效
+        this.serialForm.params = JSON.parse(JSON.stringify(this.bakSkuSelectData.bizTradeSerialFlow)) //数据深层备份,这里表示还原
+        this.$emit('fromSerialDlgGetData',this.serialForm.params,this.serialRuleData,true)  //双向绑定直接更改父组件
+        this.$emit('update:visible', false)
       },
       handleCancel(){
         this.modalClose()
       },
       handleConfirm(){
         console.log("lukeWang:子向父传数据,在父中间使用@fromSerialDlgGetData标识")
-        alert("son----:"  + this.serialForm.params[0].serial01)
-        this.$emit('fromSerialDlgGetData',this.serialForm.params,this.serialRuleData,true)
-        this.modalClose()
-        //表示更新update:父件的visible属性
-       // this.$emit('update:visible', false); // 直接修改父组件的visible属性
+        this.$refs['serialForm'].validate((valid) => {
+          if (valid) {
+            this.confirmLoading=true
+            this.$emit('fromSerialDlgGetData',this.serialForm.params,this.serialRuleData,true)  //双向绑定直接更改父组件
+            //表示更新update:父件的visible属性
+            this.$emit('update:visible', false); // 直接修改父组件的visible属性
+            this.confirmLoading=false
+          }
+        })
       },
       selectRow (val) {
+        //将选中的值累加给serialSelectData[]数组
         this.serialSelectData = val
-
       },
       handleTableSerialAdd(){
         let data = Object.assign({},paramesTemplate) ; //复制并新建一个对象
@@ -200,9 +207,10 @@
             this.$refs.serialInput.bodyWrapper.scrollTop = this.$refs.serialInput.bodyWrapper.scrollHeight;
         })
       },
-      handleTableSerailDel () {
+      handleTableSerialDel () {
         //如果有更好的方法，获取当前删除行的行索引号，删除速度会更快
-        this.$refs.serialInput.selection.forEach((item) => {
+        //this.$refs.serialInput.selection.forEach((item) => {
+        this.serialSelectData.forEach((item) => {
           for (let i = 0; i < this.serialForm.params.length; i++) {
             if (this.serialForm.params[i].keywords == item.keywords) {
               this.serialForm.params.splice(i, 1);

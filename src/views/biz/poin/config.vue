@@ -414,7 +414,6 @@
         obj.sysSku.fullName = sku.fullName
         console.log("取行传值方法范本：" + obj.sysSku.fullName)
         this.skuSelectData = obj
-       // alert(this.skuSelectData.sysSku.fullName + "-----" + this.skuSelectData.bizTradeSerialFlow.length)
         this.serialInfoVisible = true
       },
       selectRow (val) {
@@ -469,10 +468,8 @@
         })
       },
       parentCallSonGetSerialInfo(serialData,serialRuleData,param3){
-        console.log("子组件调用父组件开辟指明Method")
-       // alert(serialData.size() + "-----------1")
-
-     //   alert("1--父组件里的方法---:"  + result + "   " + param3)
+        //因为v-bind:skuSelectData,而skuSelectData指针指向scrow.row,因此更改skuSelectData即可
+        this.skuSelectData.bizTradeSerialFlow = JSON.parse(JSON.stringify(serialData))
       }
     }
   }
