@@ -165,7 +165,7 @@
 
   // crud交由presenter持有
   const defaultCrud = CRUD({ title: '采购入库', url: 'api/bizPoIn', sort: 'id,desc', crudMethod: { ...crudBizPoIn }})
-  const defaultForm = { id: null, noteNo:"",
+  const defaultForm = { id: null, keywords:'',noteNo:"",
     sysTrader: {
       id: null
     },

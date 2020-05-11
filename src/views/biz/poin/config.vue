@@ -263,7 +263,7 @@
   import {uuid} from 'vue-uuid' // Import uuid
   import {validatePrice} from '@/utils/validate'
 
-
+  //注意，keywords:当主表时可以初始化uuid.v1(),但是当明细表时，必须在新增明细时给uuid,否则多次增加会取初始化值（一直相同）
   const bizPoInDetailsTemplate = {
     id: null,
     keywords: '',
@@ -282,8 +282,10 @@
     remark: '',
     isDelete: false
   }
+
   const poinFormTemplate = {
     id: null,
+    keywords: uuid.v1(),
     bizNo: '',
     payMethod: 1,
     bizDate: '',
@@ -308,11 +310,11 @@
         serialInfoVisible:false,
         poId: '',
         tableHeight: 350,
-        saveLoading: false,
+        saveLoading: false,  //保存时加载
         tradersData: [],
         // sysConstData:[],
-        storesData:[],
-        selectDetailRows:[],
+        storesData:[], //仓库数据
+        selectDetailRows:[],  //明细选择行的数据集合
         skuDatas:[],
         skuSelectData:null,
         poinForm: poinFormTemplate,
@@ -421,18 +423,30 @@
       },
       // 删除选中行
       handleTableDel () {
-
+        this.selectDetailRows.forEach((item) => {
+          for (let i = 0; i < this.poinForm.bizPoInDetails.length; i++) {
+            if (this.poinForm.bizPoInDetails[i].keywords == item.keywords) {
+              this.poinForm.bizPoInDetails.splice(i, 1);
+              break;
+            }
+          }
+        });
+        this.$refs.poinDetailRef.clearSelection()
+        /*
         for (var i = this.$refs.poinDetailRef.selection.length - 1; i >= 0; i--) {
           this.poinForm.bizPoInDetails.splice(this.$refs.poinDetailRef.selection[i].index - 1, 1)
         }
         // 删除完数据之后清除勾选框
         this.$refs.poinDetailRef.clearSelection()
+
+         */
       },
       handleTableAdd(){
         console.info("调用uuid方法:" + uuid.v1())
         let data = Object.assign({},bizPoInDetailsTemplate) ; //复制并新建一个对象
         let skuData = Object.assign({},bizPoInDetailsTemplate.sysSku)
         data.sysSku = skuData
+        data.keywords = uuid.v1()
         this.poinForm.bizPoInDetails.push(data)
         this.$nextTick(() => {
           this.$refs.poinDetailRef.bodyWrapper.scrollTop = this.$refs.poinDetailRef.bodyWrapper.scrollHeight;
