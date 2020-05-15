@@ -135,7 +135,7 @@
               <el-table-column   label="商品名称"  width = "245" >
                 <template slot-scope="scope">
                   <el-form-item  :prop="'bizPoInDetails.' + scope.$index + '.sysSku.id'"  >
-                    <el-select v-model="scope.row.sysSku.id"  filterable  clearable placeholder="请选择"  style="width: 240px" >
+                    <el-select v-model="scope.row.sysSku.id"  filterable  clearable placeholder="请选择"   @change="changeSysSkuItem(scope.row)" style="width: 240px" >
                       <el-option
                         v-for="item in skuDatas"
                         :key="item.id"
@@ -207,16 +207,17 @@
               </el-table-column>
 
               <el-table-column label="串码详情" align = "center">
+
                 <template slot-scope="scope">
                   <el-form-item>
-                  <div v-if = scope.row.sysSku.costFlag>
+                  <div v-if = "scope.row.sysSku.costFlag == 1">
                       <a  @click="operatorSerialInfo(scope.row,scope.$index)"><i class="el-icon-folder-add el-icon--right"></i>详情</a>
                       <!--
                       <router-link :to="'/po/poin/config/' + 'add'">
                         <i class="el-icon-folder-add el-icon--right"></i>详情
                       </router-link>
                       -->
-                    </div>
+                  </div>
                   </el-form-item>
                 </template>
 
@@ -266,13 +267,13 @@
   //注意，keywords:当主表时可以初始化uuid.v1(),但是当明细表时，必须在新增明细时给uuid,否则多次增加会取初始化值（一直相同）
   const bizPoInDetailsTemplate = {
     id: null,
-    keywords: '',
+    keywords: null,
     headId: null,
     bizType: 'PI',
     sysSku: {
       id: null,
       fullName: '',
-      costFlag: true
+      costFlag: null
     },
     bizTradeSerialFlow:[],  //串号数据集合
     qty: 1,
@@ -280,7 +281,8 @@
     rate: 0,
     version: 0,
     remark: '',
-    isDelete: false
+    isDelete: false,
+    topCompanyCode: ''
   }
 
   const poinFormTemplate = {
@@ -372,6 +374,7 @@
         //相应的值进行初始化，否则数据会有残留 ，如新建时，二次新建时会代入一次的值
         let skuData = Object.assign({},bizPoInDetailsTemplate.sysSku)
         let detailData = Object.assign({},bizPoInDetailsTemplate) ; //复制并新建一个对象
+        detailData.keywords = uuid.v1();
         detailData.sysSku = skuData
         let initData = Object.assign({},poinFormTemplate) ; //复制并新建一个对象
         initData.sysStore.id = null
@@ -380,13 +383,17 @@
         initData.bizPoInDetails.push(detailData)
         this.poinForm = initData
       },
+      changeSysSkuItem(obj){
+        obj.sysSku = this.getSkuItem(obj.sysSku.id);
+
+      },
       getBizNoteInfo(){
         get(this.poId).then(data => {
           this.poinForm = data
           this.loading = false
         })
       },
-
+      //暂时不用
       getSysConstInfo(){
         getSysConst({type:"PAYABLE"}).then(res => {
           this.sysConstData = res;
@@ -407,13 +414,23 @@
           this.skuDatas = res.content
         })
       },
+      getSkuItem(skuId){
+        let sku = {};
+        sku = this.skuDatas.find((item)=>{
+          return item.id === skuId ;
+        });
+        return sku;
+      },
       operatorSerialInfo(obj,index){
         if (obj.sysSku.id == null ) return
+        /*
         let sku = {};
         sku = this.skuDatas.find((item)=>{
           return item.id === obj.sysSku.id ;
         });
         obj.sysSku.fullName = sku.fullName
+        */
+        obj.sysSku = this.getSkuItem(obj.sysSku.id)
         console.log("取行传值方法范本：" + obj.sysSku.fullName)
         this.skuSelectData = obj
         this.serialInfoVisible = true
@@ -425,6 +442,7 @@
       handleTableDel () {
         this.selectDetailRows.forEach((item) => {
           for (let i = 0; i < this.poinForm.bizPoInDetails.length; i++) {
+
             if (this.poinForm.bizPoInDetails[i].keywords == item.keywords) {
               this.poinForm.bizPoInDetails.splice(i, 1);
               break;
@@ -432,22 +450,17 @@
           }
         });
         this.$refs.poinDetailRef.clearSelection()
-        /*
-        for (var i = this.$refs.poinDetailRef.selection.length - 1; i >= 0; i--) {
-          this.poinForm.bizPoInDetails.splice(this.$refs.poinDetailRef.selection[i].index - 1, 1)
-        }
-        // 删除完数据之后清除勾选框
-        this.$refs.poinDetailRef.clearSelection()
 
-         */
       },
       handleTableAdd(){
         console.info("调用uuid方法:" + uuid.v1())
-        let data = Object.assign({},bizPoInDetailsTemplate) ; //复制并新建一个对象
-        let skuData = Object.assign({},bizPoInDetailsTemplate.sysSku)
+        let data = Object.assign({}, bizPoInDetailsTemplate); //复制并新建一个对象
+        let skuData = Object.assign({}, bizPoInDetailsTemplate.sysSku)
         data.sysSku = skuData
         data.keywords = uuid.v1()
+
         this.poinForm.bizPoInDetails.push(data)
+
         this.$nextTick(() => {
           this.$refs.poinDetailRef.bodyWrapper.scrollTop = this.$refs.poinDetailRef.bodyWrapper.scrollHeight;
         })

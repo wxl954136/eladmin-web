@@ -168,6 +168,7 @@
       }
     },
     created(){
+
       console.info("注意，当visible:false时再进来true时，会调用，以visible来控制是否每次都执行created")
       //深层数据备份，如果没有点击确定[点如X及取消按钮时]，则还原进来时的数据，即修改无效
       this.bakSkuSelectData = JSON.parse(JSON.stringify(this.skuSelectData)) //数据深层备份，操作不同指针
