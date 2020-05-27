@@ -2,7 +2,7 @@ module.exports = {
   /**
    * @description 网站标题
    */
-  title: '悠易科技有限公司',
+  title: '悠蓝科技有限公司',
   /**
    * @description 是否显示 tagsView
    */
@@ -46,5 +46,5 @@ module.exports = {
   /**
    * 备案号
    */
-  caseNumber: '悠易科技提供技术支持【联系电话:15272080011】'
+  caseNumber: '悠蓝科技提供技术支持【联系电话:15272080011】'
 }

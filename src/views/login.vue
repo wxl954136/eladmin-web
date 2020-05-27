@@ -8,7 +8,7 @@
   <div class="login">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" label-position="left" label-width="0px" class="login-form">
       <h3 class="title">
-        【悠易科技】SaaS企业管理系统
+        【悠蓝科技】企业管理系统
       </h3>
       <el-form-item prop="topcompanycode">
         <el-input v-model="loginForm.topcompanycode" type="text" auto-complete="off" placeholder="企业代码">

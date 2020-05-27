@@ -11,7 +11,7 @@
       <el-row :gutter="15">
         <el-col>
           <el-card class="box-card" shadow="hover" style = "margin-top: -30px;">
-            <el-input placeholder="请输入内容" v-model="skuSelectData.sysSku.fullName" :disabled="true" style = "width:513px"  >
+            <el-input placeholder="请输入内容" v-model="currentSelectTarget.sysSku.fullName" :disabled="true" style = "width:513px"  >
               <template slot="prepend">商品名称:</template>
             </el-input>
             <el-collapse  style = "border-top: 0px;border-bottom: 0px">
@@ -144,10 +144,10 @@
           rule: '15',
           enabled:true
         }],
-        bakSkuSelectData:{},
+        bakCurrentSelectTarget:{},
         serialSelectData:[],
         serialForm:{
-          params: this.skuSelectData.bizTradeSerialFlow,
+          params: this.currentSelectTarget.bizTradeSerialFlow,
           paramsRules: {
             serial01: [{required: true, message: '请输入串号1', trigger: 'blur'}],
             serial02: [{required: true, message: '请输入串号2', trigger: 'blur'}],
@@ -158,7 +158,7 @@
     },
 
     props: {
-      skuSelectData:{
+      currentSelectTarget:{
          type:Object,
          required:true
       },
@@ -168,15 +168,15 @@
       }
     },
     created(){
-
+      this.serialForm.params = this.currentSelectTarget.bizTradeSerialFlow
       console.info("注意，当visible:false时再进来true时，会调用，以visible来控制是否每次都执行created")
       //深层数据备份，如果没有点击确定[点如X及取消按钮时]，则还原进来时的数据，即修改无效
-      this.bakSkuSelectData = JSON.parse(JSON.stringify(this.skuSelectData)) //数据深层备份，操作不同指针
+      this.bakCurrentSelectTarget = JSON.parse(JSON.stringify(this.currentSelectTarget)) //数据深层备份，操作不同指针
     },
     methods: {
       modalClose(){
         //如果没有点击确定[点如X及取消按钮时]，则还原进来时的数据，即修改无效
-        this.serialForm.params = JSON.parse(JSON.stringify(this.bakSkuSelectData.bizTradeSerialFlow)) //数据深层备份,这里表示还原
+        this.serialForm.params = JSON.parse(JSON.stringify(this.currentSelectTarget.bizTradeSerialFlow)) //数据深层备份,这里表示还原
         this.$emit('fromSerialDlgGetData',this.serialForm.params,this.serialRuleData,true)  //双向绑定直接更改父组件
         this.$emit('update:visible', false)
       },
@@ -184,6 +184,8 @@
         this.modalClose()
       },
       handleConfirm(){
+
+
         console.log("lukeWang:子向父传数据,在父中间使用@fromSerialDlgGetData标识")
         this.$refs['serialForm'].validate((valid) => {
           if (valid) {
