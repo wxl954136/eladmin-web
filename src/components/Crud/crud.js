@@ -327,6 +327,7 @@ function CRUD(options) {
         crud.downloadLoading = false
       })
     },
+
     /**
      * 获取查询参数
      */
@@ -746,7 +747,17 @@ CRUD.HOOK = {
   /** 提交 - 之后 */
   afterSubmit: 'afterCrudSubmitCU',
   afterAddError: 'afterCrudAddError',
-  afterEditError: 'afterCrudEditError'
+  afterEditError: 'afterCrudEditError',
+  /**
+   *
+   * 如采购单中的新增事件可覆写并跳转(以采购单单为例)
+   * 如采购单中把【新增】/【修改】放在单独的界面
+   * 悠蓝自定义封装
+   */
+  toAddRecordFromMain:"toAddRecordFromMain",
+  toEditRecordFromMain:"toEditRecordFromMain"
+
+
 }
 
 /**

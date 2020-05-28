@@ -10,7 +10,7 @@
         size="mini"
         type="primary"
         icon="el-icon-plus"
-        @click="toAddRecord()"
+        @click="toAddRecordFromMain()"
       >
         新增
       </el-button>
@@ -120,14 +120,26 @@ export default {
     this.crud.updateProp('searchToggle', true)
   },
   methods: {
-    toAddRecord(){
-      this.$router.push({path: this.crud.routerAddress + "-1"})
+    /*
+   toAddRecord(){
 
-   //   this.crud.props.searchToggle = !this.crud.props.searchToggle
+     CRUD.HOOK.toAddRecordFromMain()
+  //   this.$router.push({path: this.crud.routerAddress + "add/" +  "-1"})
+  //   this.crud.props.searchToggle = !this.crud.props.searchToggle
+   },
+*/
+
+    toAddRecordFromMain(){
+
+      this.crud.routerAddress = this.crud.routerAddress + "/add/-1"
+      this.$router.push({path: this.crud.routerAddress })
+      //this.$router.push({path: this.crud.routerAddress  +   "add/" + obj.id})
     },
     toEditRecord(obj){
-      //alert(obj.id + "======" + obj.remark)
-      this.$router.push({path: this.crud.routerAddress + obj.id})
+
+      this.crud.routerAddress = this.crud.routerAddress + "/edit/"  + obj.id
+      alert(this.crud.routerAddress)
+      this.$router.push({path: this.crud.routerAddress })
       //   this.crud.props.searchToggle = !this.crud.props.searchToggle
     },
     toDelete(datas) {

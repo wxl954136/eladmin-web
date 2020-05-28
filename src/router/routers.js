@@ -57,7 +57,31 @@ export const constantRouterMap = [
         meta: { title: '个人中心' }
       }
     ]
+  },
+//手动注册,不然要在菜单中去发现，这样会多余两个菜单，非常麻烦,以为做为范例
+  {
+    path: '/po/poin/config',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'add/:poId',
+        component: () => import('@/views/biz/poin/config'),
+        name: '采购入库【新增】',
+        key:'$route.fullPath',//互相切换时，刷新组件 ，因为两个共用一个component
+        meta: { title: '采购入库【新增】', icon: 'edit' }
+      },
+      {
+        path: 'edit/:poId',
+        name: '采购入库【修改】',
+        component: () => import('@/views/biz/poin/config'),
+        meta: { title: '采购入库【修改】', icon: 'edit' }
+      }
+    ]
   }
+
+
 ]
 
 export default new Router({

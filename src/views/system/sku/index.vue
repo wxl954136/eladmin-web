@@ -66,6 +66,7 @@
             </el-select>
             <rrOperation :crud="crud" />
           </div>
+          <!-- wxl modi-->
           <crudOperation show="" :permission="permission" />
         </div>
         <!--表单渲染-->
@@ -255,7 +256,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-permission="['admin','store:edit','store:del']"
+            v-permission="['admin','sku:edit','sku:del']"
             label="操作"
             width="125"
             align="center"

@@ -23,7 +23,7 @@
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
-      <!--
+<!--
       <el-button
         v-if="crud.optShow.add"
         v-permission="permission.add"
@@ -31,10 +31,11 @@
         size="mini"
         type="primary"
         icon="el-icon-plus"
-        @click="addRecords"
+        @click="crud.toAddRecordFromMain"
       >
         新增
       </el-button>
+
       <el-button
         v-if="crud.optShow.edit"
         v-permission="permission.edit"
@@ -105,7 +106,7 @@
             <el-table-column label="串码详情" width="90" align = "center">
               <template slot-scope="scope">
                 <div v-if = scope.row.sysSku.costFlag>
-                  <router-link :to="'/po/poin/config/' + 'add'">
+                  <router-link :to="'/po/poin/config/add/' + '-1'">
                     <i class="el-icon-folder-add el-icon--right"></i>详情
                   </router-link>
                 </div>
@@ -140,7 +141,11 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column v-permission="['admin','bizPoIn:edit','bizPoIn:del']" label="操作" width="150px" align="center">
+      <el-table-column v-permission="['admin','bizPoIn:edit','bizPoIn:del']"
+                       label="操作" width="150px"
+                       fixed="right"
+                       align="center"
+      >
         <template slot-scope="scope">
           <udOperation
             :data="scope.row"
@@ -158,7 +163,7 @@
   import crudBizPoIn from '@/api/biz/bizPoIn'
   import CRUD, { presenter, header, form, crud } from '@crud/crud'
   import rrOperation from '@crud/RR.operation'
-  import crudOperationRoute from '@crud/CRUD.operation.route'
+  import crudOperationRoute  from '@crud/CRUD.operation.route'
   import udOperation from '@crud/UD.operation'
   import pagination from '@crud/Pagination'
 
@@ -172,16 +177,19 @@
     sysStore: {
       id: null
     }, handler:"",remark: null, isDelete: 0, version: 0, topCompanyCode: null }
+
+
+
   export default {
     name: 'BizPoIn',
     components: { pagination, crudOperationRoute, rrOperation, udOperation },
-    mixins: [presenter(defaultCrud), header(), form(defaultForm), crud()],
+    mixins: [presenter(defaultCrud),  header(), form(defaultForm), crud()],
     data() {
       return {
         permission: {
-          add: ['admin', 'bizPoIn:add'],
-          edit: ['admin', 'bizPoIn:edit'],
-          del: ['admin', 'bizPoIn:del']
+          add: [ 'poin:add'],
+          edit: [ 'poin:edit'],
+          del: ['poin:del']
         },
         enabledTypeOptions: [
           { key: 'true', display_name: '正常' },
@@ -195,9 +203,10 @@
       }
     },
     mounted(){
-      this.crud.routerAddress = '/po/poin/config/'  //新增的路由地址，crud.js中定义
+      this.crud.routerAddress = '/po/poin/config'  //新增的路由地址，crud.js中定义
     },
     methods: {
+
       // 获取数据前设置好接口地址
       [CRUD.HOOK.beforeRefresh]() {
         return true

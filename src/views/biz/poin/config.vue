@@ -367,10 +367,7 @@ F
       this.getSkusInfo()
       this.$nextTick(() => {
         if (this.poId > 0 ) this.getBizNoteInfo()
-
       })
-
-
     },
 
     mounted(){
@@ -553,7 +550,6 @@ F
       dealDisabledDate(time) {
         // time 是一个new Date数据
         if (new Date(time).getTime() > new Date().getTime()) {
-
           return time.getTime() >= (new Date().getTime());//时间范围必须是时间戳
         } else {
           return time.getTime() < Date.now() - 30 * 8.64e7;//两天之内 根据自己需求来定
